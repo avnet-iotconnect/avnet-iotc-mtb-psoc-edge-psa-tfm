@@ -6,21 +6,33 @@
 # Makefile for configuring the Cortex-M55 core project
 #
 ################################################################################
-# \copyright
-# (c) 2024-2025, Infineon Technologies AG, or an affiliate of Infineon Technologies AG.
-# SPDX-License-Identifier: Apache-2.0
+# (c) 2025, Infineon Technologies AG, or an affiliate of Infineon
+# Technologies AG. All rights reserved.
+# This software, associated documentation and materials ("Software") is
+# owned by Infineon Technologies AG or one of its affiliates ("Infineon")
+# and is protected by and subject to worldwide patent protection, worldwide
+# copyright laws, and international treaty provisions. Therefore, you may use
+# this Software only as provided in the license agreement accompanying the
+# software package from which you obtained this Software. If no license
+# agreement applies, then any use, reproduction, modification, translation, or
+# compilation of this Software is prohibited without the express written
+# permission of Infineon.
 # 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-# 
-#     http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Disclaimer: UNLESS OTHERWISE EXPRESSLY AGREED WITH INFINEON, THIS SOFTWARE
+# IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING, BUT NOT LIMITED TO, ALL WARRANTIES OF NON-INFRINGEMENT OF
+# THIRD-PARTY RIGHTS AND IMPLIED WARRANTIES SUCH AS WARRANTIES OF FITNESS FOR A
+# SPECIFIC USE/PURPOSE OR MERCHANTABILITY.
+# Infineon reserves the right to make changes to the Software without notice.
+# You are responsible for properly designing, programming, and testing the
+# functionality and safety of your intended application of the Software, as
+# well as complying with any legal requirements related to its use. Infineon
+# does not guarantee that the Software will be free from intrusion, data theft
+# or loss, or other breaches ("Security Breaches"), and Infineon shall have
+# no liability arising out of any Security Breaches. Unless otherwise
+# explicitly approved by Infineon, the Software may not be used in any
+# application where a failure of the Product or any consequences of the use
+# thereof can reasonably be expected to result in personal injury.
 ################################################################################
 
 include ../common.mk
@@ -28,7 +40,6 @@ include ../common.mk
 ################################################################################
 # Basic Configuration
 ################################################################################
-
 
 # Name of application (used to derive name of final linked file).
 #
@@ -39,6 +50,16 @@ APPNAME=proj_cm55
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
+# Neural Network Configuration. Options include
+#
+# float    -- floating point for the input data and weights
+# int8x8   -- 8-bit fixed-point for the input data and weights
+NN_TYPE=int8x8
+
+# Choose the inference engine
+# tflm      -- TensorFlow Lite for Microcontrollers inference engine with interpreter
+# tflm_less -- TensorFlow Lite for Microcontrollers inference engine interpreter-less
+NN_INFERENCE_ENGINE=tflm
 
 ################################################################################
 # Advanced Configuration
@@ -54,32 +75,42 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS+=
+COMPONENTS+=FREERTOS RTOS_AWARE
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=
 
+# Set this application to run at the CM55
 CORE=CM55
 CORE_NAME=CM55_0
-
-#Configure this application to be loaded into flash/ram
-APPTYPE=flash
+NPU=U55
 
 # By default the build system automatically looks in the Makefile's directory
 # tree for source code and builds it. The SOURCES variable can be used to
 # manually add source code to the build process from a location not searched
 # by default, or otherwise not found by the build system.
-SOURCES+=
+SOURCES+=$(wildcard ../shared/source/COMPONENT_CM55/*.c)
+
+# (should be) required for TF-M
+DEFINES+=TFM_MULTI_CORE_NS_OS
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
-INCLUDES+=
+INCLUDES+=../shared/include
 
 # Add additional defines to the build process (without a leading -D).
-DEFINES+=
+DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF
+
+# Add additional defines related to ARM Helium and DSP extensions
+DEFINES+=ARM_MATH_HELIUM ARM_MATH_DSP ARM_MATH_AUTOVECTORIZE
+
+
+# Add additional components related to MTB ML
+COMPONENTS+=U55
+
 
 # Select softfp or hardfp floating point. Default is softfp.
-VFP_SELECT=
+VFP_SELECT+=hardfp
 
 # Additional / custom C compiler flags.
 #
@@ -109,7 +140,11 @@ LDLIBS+=
 LINKER_SCRIPT=
 
 # Custom pre-build commands to run.
-PREBUILD+=
+PREBUILD=
+
+# Custom post-build commands to run.
+POSTBUILD=
+
 
 ################################################################################
 # Paths
@@ -122,11 +157,11 @@ CY_APP_PATH=
 
 # Relative path to the shared repo location.
 #
-# All .mtb files have the format, <URI>#<COMMIT>#<LOCATION>. If the <LOCATION> field 
-# begins with $$ASSET_REPO$$, then the repo is deposited in the path specified by 
-# the CY_GETLIBS_SHARED_PATH variable. The default location is one directory level 
-# above the current app directory.
-# This is used with CY_GETLIBS_SHARED_NAME variable, which specifies the directory name.
+# All .mtb files have the format, <URI>#<COMMIT>#<LOCATION>. If the <LOCATION> 
+# field begins with $$ASSET_REPO$$, then the repo is deposited in the path 
+# specified by the CY_GETLIBS_SHARED_PATH variable. The default location is one 
+# directory level above the current app directory. This is used with 
+# CY_GETLIBS_SHARED_NAME variable, which specifies the directory name.
 CY_GETLIBS_SHARED_PATH=../..
 
 # Directory name of the shared repo location.
