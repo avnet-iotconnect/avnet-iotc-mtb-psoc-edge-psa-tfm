@@ -17,7 +17,14 @@ One of the goals is to recommend the best agent for each task (best free and bes
 - Code Analysis
 - Debugging
 
+# NOTES FOR AI AGENTS
+
 Agents should avoid guessing something they are not sure about and try to ask for ways to improve this document to help them with tasks in order to reduce the number of mistakes made in the future.
+
+Agents should be able to use #codebase (project root) mtb-shared directory directly for searching, rather than having to invoke shell commands for search with abolute path.
+Using file_search and similar over "rgrep" is probably preferred as it does not rerquire user intraction.
+
+Agents need to wait for build task to complete by examining output and waiting for the build task to actually finish. Direct invocation of Build task may return early before the build actually completes.
 
 ## Project Description
 This is a ModusToolbox-based IoT project for Infineon devices, involving MQTT, TF-M secure/non-secure partitions, FreeRTOS, and Wi-Fi connectivity.

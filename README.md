@@ -3,7 +3,7 @@
 - Launch the BSP Configurator - In MTB Assistant, choose Application page -> Configure Device
   - Ensure that View->Parameters is enabled in the menus
   - Select the *Edge Protect Solution* in the list
-  - At *Edge Protect Solution - Parameters", in the right-side panel, select Launch Edge Protect Configurator.
+  - At *Edge Protect Solution - Parameters*, in the right-side panel, select Launch Edge Protect Configurator.
   - Select TF-M Profile **Large**
   - Click the Save button, close the window and then File->Save in the menu of the Configurator App
 

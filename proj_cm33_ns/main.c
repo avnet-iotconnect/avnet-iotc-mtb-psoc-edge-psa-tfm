@@ -255,7 +255,6 @@ int main(void)
 
     /* Initialize TF-M interface */
     result = tfm_ns_interface_init();
-
     if(result != OS_WRAPPER_SUCCESS)
     {
         CY_ASSERT(0);
@@ -276,11 +275,13 @@ int main(void)
     /* Enable global interrupts. */
     __enable_irq();
     
+# if 0 // We disable logs to provent random kernel panics. This may help debug issues though.
     cy_log_init(CY_LOG_ERR, app_log_output_callback, app_log_time);
 
     // Uncomment this line to get more info from HTTP and similar
     // if encountering issues
     cy_log_set_facility_level(CYLF_MIDDLEWARE, CY_LOG_WARNING);
+#endif
 
     extern void psa_test(void);
     // psa_test();
@@ -290,14 +291,6 @@ int main(void)
 
     extern void psa_mqtt_setup_huk(void);
     psa_mqtt_setup_huk();
-
-    #if 0
-    extern void psa_test_task(void *pvParameters);
-    psa_test_task(NULL);
-    result = xTaskCreate(psa_test_task, "PSA Test", (1024 * 2),
-                NULL, MQTT_CLIENT_TASK_PRIORITY, NULL);
-    #endif
-    /* Create the MQTT Client task. */
     
     result = xTaskCreate(mqtt_client_task, "MQTT Client task", MQTT_CLIENT_TASK_STACK_SIZE,
                 NULL, MQTT_CLIENT_TASK_PRIORITY, NULL);
