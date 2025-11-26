@@ -179,7 +179,7 @@
 "-----END RSA PRIVATE KEY-----"
 
 /* PEM-encoded Root CA certificate */
-#if 0
+#if 1
 #define ROOT_CA_CERTIFICATE     \
 "-----BEGIN CERTIFICATE-----\n" \
 "MIIDQTCCAimgAwIBAgITBmyfz5m/jAo54vB4ikPmljZbyjANBgkqhkiG9w0BAQsF\n" \

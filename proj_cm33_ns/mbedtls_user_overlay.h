@@ -57,20 +57,35 @@
 #define MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
 #define MBEDTLS_KEY_EXCHANGE_ECDH_ECDSA_ENABLED
 
+// ECDH support - required for ECDHE key exchange (both ECDHE_RSA and ECDHE_ECDSA)
+// Note: Even with PSA_WANT_ALG_ECDH, legacy ECDH_C may be needed for cipher suite compilation
+#define MBEDTLS_ECDH_C
+
 // Ensure we have the necessary cipher suites for ECC
 #define MBEDTLS_CIPHER_MODE_CBC
 #define MBEDTLS_CIPHER_MODE_GCM
 
 
-// Disable all RSA-based key exchanges to force ECC TLS negotiation
-#undef MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED
-#undef MBEDTLS_KEY_EXCHANGE_ECDH_RSA_ENABLED
+// RSA key exchange configuration:
+// - ECDHE_RSA: ENABLED - Allows server with RSA cert (e.g., AmazonRootCA1) + ECDHE key exchange
+//   Your client still uses ECC for client auth, server uses RSA cert
+// - RSA/DHE_RSA/RSA_PSK: DISABLED - Pure RSA key exchanges not needed
+// - ECDH_RSA: DISABLED - Static ECDH with RSA cert, not commonly used
+#define MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED
+#define MBEDTLS_KEY_EXCHANGE_ECDH_RSA_ENABLED
 #undef MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
 #undef MBEDTLS_KEY_EXCHANGE_RSA_PSK_ENABLED
 #undef MBEDTLS_KEY_EXCHANGE_DHE_RSA_ENABLED
 
+// RSA support for verifying server certificates (AmazonRootCA1 is RSA-2048)
+// #define MBEDTLS_RSA_C
+// #define MBEDTLS_PKCS1_V15
+
+// TLS record buffer sizes
+// IN: Increased to 6KB to handle server certificate chain (AWS IoT Core sends ~5KB)
+// OUT: Keep at 4KB - PSA key export had issues with larger buffers (Session 9)
 #undef MBEDTLS_SSL_IN_CONTENT_LEN
-#define MBEDTLS_SSL_IN_CONTENT_LEN 4096
+#define MBEDTLS_SSL_IN_CONTENT_LEN 6144
 
 #undef MBEDTLS_SSL_OUT_CONTENT_LEN
 #define MBEDTLS_SSL_OUT_CONTENT_LEN 4096
