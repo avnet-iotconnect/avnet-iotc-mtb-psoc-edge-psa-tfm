@@ -7,8 +7,8 @@
 #
 ################################################################################
 # \copyright
-# (c) 2024-2025, Infineon Technologies AG, or an affiliate of Infineon Technologies AG.
-# SPDX-License-Identifier: Apache-2.0
+# (c) 2025, Infineon Technologies AG, or an affiliate of Infineon
+# Technologies AG.  SPDX-License-Identifier: Apache-2.0
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@
 
 # Type of ModusToolbox Makefile Options include:
 #
-#COMBINED    -- Top Level Makefile usually for single standalone application
-#APPLICATION -- Top Level Makefile usually for multi project application
-#PROJECT     -- Project Makefile under Application
+# COMBINED    -- Top Level Makefile usually for single standalone application
+# APPLICATION -- Top Level Makefile usually for multi project application
+# PROJECT     -- Project Makefile under Application
 #
 MTB_TYPE=APPLICATION
 

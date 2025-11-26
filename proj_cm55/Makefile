@@ -41,6 +41,22 @@ include ../common.mk
 # Basic Configuration
 ################################################################################
 
+# model selection: moved to common.mk
+
+ifeq (,$(filter $(TARGET),APP_KIT_PSE84_EVAL_EPC2 APP_KIT_PSE84_EVAL_EPC4))
+else
+    ifeq (,$(filter $(strip $(MODEL_SELECTION)),COUGH_MODEL ALARM_MODEL BABYCRY_MODEL DIRECTIONOFARRIVAL_MODEL FALLDETECTION_MODEL))
+        $(error Invalid MODEL_SELECTION "$(MODEL_SELECTION)" for TARGET=$(TARGET))
+    endif
+endif
+
+ifeq (,$(filter $(TARGET),APP_KIT_PSE84_AI))
+else
+    ifeq (,$(filter $(strip $(MODEL_SELECTION)),COUGH_MODEL ALARM_MODEL BABYCRY_MODEL GESTURE_MODEL DIRECTIONOFARRIVAL_MODEL FALLDETECTION_MODEL))
+        $(error Invalid MODEL_SELECTION "$(MODEL_SELECTION)" for TARGET=$(TARGET))
+    endif
+endif
+
 # Name of application (used to derive name of final linked file).
 #
 # If APPNAME is edited, ensure to update or regenerate launch
@@ -91,6 +107,8 @@ NPU=U55
 # by default, or otherwise not found by the build system.
 SOURCES+=$(wildcard ../shared/source/COMPONENT_CM55/*.c)
 
+SEARCH+=../shared/retarget_io/
+
 # (should be) required for TF-M
 DEFINES+=TFM_MULTI_CORE_NS_OS
 
@@ -108,6 +126,92 @@ DEFINES+=ARM_MATH_HELIUM ARM_MATH_DSP ARM_MATH_AUTOVECTORIZE
 # Add additional components related to MTB ML
 COMPONENTS+=U55
 
+# Add additional define/components to select the inference engine
+ifeq (tflm, $(NN_INFERENCE_ENGINE))
+COMPONENTS+=ML_TFLM
+DEFINES+=TF_LITE_STATIC_MEMORY
+endif
+
+# Add define to build code for CM55 and include additional files
+DEFINES+=CY_ML_MODEL_MEM=.cy_socmem_data
+DEFINES+=CY_ML_ARENA_MEM=.cy_socmem_data
+COMPONENTS+=CMSIS_DSP
+
+# Depending which Neural Network Type, add a specific DEFINE and COMPONENT
+ifeq (float, $(NN_TYPE))
+COMPONENTS+=ML_FLOAT32
+endif
+ifeq (int8x8, $(NN_TYPE))
+COMPONENTS+=ML_INT8x8
+endif
+
+INCLUDES+=$(SEARCH_cmsis)/COMPONENT_CMSIS_NN/Include
+
+INCLUDES+=./ready_models
+
+CY_IGNORE+=$(SEARCH_CMSIS-DSP)
+
+ifeq (COUGH_MODEL, $(MODEL_SELECTION))
+DEFINES+=COUGH_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/cough_lib_eval.a
+endif
+
+ifeq (BABYCRY_MODEL, $(MODEL_SELECTION))
+DEFINES+=BABYCRY_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/babycry_lib_eval.a
+endif
+
+ifeq (ALARM_MODEL, $(MODEL_SELECTION))
+DEFINES+=ALARM_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/alarm_siren_lib_eval.a
+endif
+
+ifeq (GESTURE_MODEL, $(MODEL_SELECTION))
+DEFINES+=GESTURE_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/gesture_lib_eval.a
+endif
+
+ifeq (FALLDETECTION_MODEL, $(MODEL_SELECTION))
+DEFINES+=FALLDETECTION_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/fall_lib_eval.a
+endif
+
+ifeq (DIRECTIONOFARRIVAL_MODEL, $(MODEL_SELECTION))
+DEFINES+=DIRECTIONOFARRIVAL_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/doa_lib_eval.a
+endif
+
+
+ifeq (GESTURE_MODEL, $(MODEL_SELECTION))
+  CY_IGNORE+=source/audio.c
+  CY_IGNORE+=source/imu.c
+  CY_IGNORE+=source/doa.c
+else
+  ifeq (FALLDETECTION_MODEL, $(MODEL_SELECTION))
+    CY_IGNORE+=source/radar.c
+    CY_IGNORE+=source/radar
+    CY_IGNORE+=source/audio.c
+    CY_IGNORE+=source/doa.c
+  else
+    ifeq (DIRECTIONOFARRIVAL_MODEL, $(MODEL_SELECTION))
+      CY_IGNORE+=source/radar.c
+      CY_IGNORE+=source/radar
+      CY_IGNORE+=source/audio.c
+      CY_IGNORE+=source/imu.c
+    else
+      CY_IGNORE+=source/radar.c
+      CY_IGNORE+=source/radar
+      CY_IGNORE+=source/imu.c
+      CY_IGNORE+=source/doa.c
+    endif
+  endif
+endif
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT+=hardfp

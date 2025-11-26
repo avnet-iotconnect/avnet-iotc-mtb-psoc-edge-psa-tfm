@@ -4,7 +4,7 @@
     <Personality template="tfm.general" version="1.0">
         <Parameters>
             <Param id="PLATFORM" value="Pse84Epc2"/>
-            <Param id="TFM_PROFILE" value="Medium"/>
+            <Param id="TFM_PROFILE" value="Large"/>
             <Param id="ISOLATION_LEVEL" value="Level2"/>
         </Parameters>
     </Personality>

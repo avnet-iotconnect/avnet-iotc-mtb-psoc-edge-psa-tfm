@@ -1,12 +1,11 @@
-/******************************************************************************
-* File Name: wifi_config.h
-*
-* Description: This file contains the configuration macros required for the
-*              Wi-Fi connection.
-*
-* Related Document: See README.md
-*
-*
+/*******************************************************************************
+ * File Name:   retarget_io_init.h
+ *
+ * Description:  This file is the public interface of retarget_io_init.c and 
+ *               contains the necessary UART configuration parameters.
+ *
+ * Related Document: See README.md
+ *
 *******************************************************************************
 * Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
@@ -40,29 +39,34 @@
 * so agrees to indemnify Cypress against all liability.
 *******************************************************************************/
 
-#ifndef WIFI_CONFIG_H_
-#define WIFI_CONFIG_H_
+#ifndef _RETARGET_IO_INIT_H_
+#define _RETARGET_IO_INIT_H_
 
-#include "cy_wcm.h"
+/*******************************************************************************
+* Header Files
+*******************************************************************************/
+#include "cybsp.h"
+// #include "mtb_hal.h"
+// #include "mtb_syspm_callbacks.h"
 
 /*******************************************************************************
 * Macros
-********************************************************************************/
-/* SSID of the Wi-Fi Access Point to which the MQTT client connects. */
-#define WIFI_SSID                        ""
+*******************************************************************************/
 
-/* Passkey of the above mentioned Wi-Fi SSID. */
-#define WIFI_PASSWORD                     ""
+static inline void init_retarget_io(void) {} // NOOP
 
-/* Security type of the Wi-Fi access point. See 'cy_wcm_security_t' structure
- * in "cy_wcm.h" for more details.
- */
-#define WIFI_SECURITY                     CY_WCM_SECURITY_WPA2_AES_PSK
+__STATIC_INLINE void handle_app_error(void)
+{
+    /* Disable all interrupts. */
+    __disable_irq();
 
-/* Maximum Wi-Fi re-connection limit. */
-#define MAX_WIFI_CONN_RETRIES             (120u)
+    CY_ASSERT(0);
 
-/* Wi-Fi re-connection time interval in milliseconds. */
-#define WIFI_CONN_RETRY_INTERVAL_MS       (5000)
+    /* Infinite loop */
+    while(true);
 
-#endif /* WIFI_CONFIG_H_ */
+}
+
+#endif /* _RETARGET_IO_INIT_H_ */
+
+/* [] END OF FILE */
