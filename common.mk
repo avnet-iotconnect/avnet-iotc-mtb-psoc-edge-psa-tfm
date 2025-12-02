@@ -66,7 +66,7 @@ endif
 # those symbols are not required. Excluding those symbols,
 #which are not needed for this application build
 ifeq ($(TOOLCHAIN),ARM)
-  # DEFINES+=MCUBOOT_SKIP_CLEANUP_RAM=1
+  DEFINES+=MCUBOOT_SKIP_CLEANUP_RAM=1
 endif
 
 # model selection

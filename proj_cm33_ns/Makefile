@@ -68,7 +68,8 @@ APPTYPE=flash
 # tree for source code and builds it. The SOURCES variable can be used to
 # manually add source code to the build process from a location not searched
 # by default, or otherwise not found by the build system.
-SOURCES+=$(wildcard ../shared/source/COMPONENT_CM33/*.c)
+# TEMPORARILY DISABLED to debug crash:
+#SOURCES+=$(wildcard ../shared/source/COMPONENT_CM33/*.c)
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
@@ -102,7 +103,7 @@ endif
 DEFINES+=ENABLE_HTTP_CLIENT_LOGS MQTT_DO_NOT_USE_CUSTOM_CONFIG
 DEFINES+=HTTP_DO_NOT_USE_CUSTOM_CONFIG
 # for sntp
-DEFINES+=SNTP_SERVER_DNS
+# DEFINES+=SNTP_SERVER_DNS
 
 # To be able to detect the model in the app:
 DEFINES+=$(MODEL_SELECTION)

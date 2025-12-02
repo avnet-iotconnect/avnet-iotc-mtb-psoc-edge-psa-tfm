@@ -50,6 +50,10 @@
 * Header Files
 *******************************************************************************/
 #include <stdint.h>
+#include <stdbool.h>
+
+/* IPC DISABLED - wrap all the IPC-specific includes and macros */
+#if 0
 #include "cybsp.h"
 #include "cy_pdl.h"
 #include "cy_ipc_pipe.h"
@@ -83,6 +87,7 @@
 
 /* Combined Interrupt Mask */
 #define CY_IPC_CYPIPE_INTR_MASK         ( CY_IPC_CYPIPE_CHAN_MASK_EP1 | CY_IPC_CYPIPE_CHAN_MASK_EP2)
+#endif /* IPC DISABLED */
 
 /*******************************************************************************
 * Enumeration
@@ -107,7 +112,7 @@ typedef struct
 * Function prototypes
 *******************************************************************************/
 void cm33_ipc_communication_setup(void);
-void cm33_ipc_pipe_isr(void);
+// void cm33_ipc_pipe_isr(void);
 void cm55_ipc_communication_setup(void);
 void cm55_ipc_pipe_isr(void);
 
