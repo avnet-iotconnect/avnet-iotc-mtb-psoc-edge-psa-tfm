@@ -58,16 +58,6 @@
 /******************************************************************************
  * Macros
  ******************************************************************************/
-/* The timeout value in microsecond used to wait for core to be booted */
-#define CM55_BOOT_WAIT_TIME_US            (10U)
-
-// TODO: check if we need this
-/* App boot address for CM55 project */
-#if 0
-#define CM55_APP_BOOT_ADDR          (CYMEM_CM33_0_m55_nvm_START + \
-                                        CYBSP_MCUBOOT_HEADER_SIZE)
-#endif
-
 /* Enabling or disabling a MCWDT requires a wait time of upto 2 CLK_LF cycles
  * to come into effect. This wait time value will depend on the actual CLK_LF
  * frequency set by the BSP.
@@ -230,7 +220,7 @@ int main(void)
         printf("tfm_ns_interface_init failed!\n");
         CY_ASSERT(0);
     }
-    
+
     /* Setup IPC communication for CM33 - after TF-M init to avoid IPC conflicts */
     // cm33_ipc_communication_setup();
 
@@ -241,7 +231,6 @@ int main(void)
     printf("===============================================================\n");
 
     printf("CM33 /IOTCONNECT App Task Starting. Waiting for CM55 IPC to start...\n");
-    fflush(stdout); // wait for this to print - roughtly 20 ms
 
 
     // Cy_SysEnableCM55(MXCM55, CY_CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);

@@ -10,6 +10,7 @@
 
 #include "FreeRTOS.h"
 
+#include "retarget_io_init.h"
 #include "ipc_communication.h"
 
 #include "wifi_config.h"
@@ -20,7 +21,6 @@
 
 #include "psa_credentials.h"
 #include "app_config.h"
-
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -169,12 +169,10 @@ static void on_command(IotclC2dEventData data) {
 }
 
 static cy_rslt_t publish_telemetry(void) {
-    ipc_payload_t payload = {0};
+    ipc_payload_t payload;
     // useful fro debugging - making sure we have te latest data:
     // printf("Has IPC Data: %s\n", cm33_ipc_has_received_message() ? "true" : "false");
-    #if 0
     cm33_ipc_safe_get_and_clear_cached_detection(&payload);
-    #endif
     IotclMessageHandle msg = iotcl_telemetry_create();
     iotcl_telemetry_set_string(msg, "version", APP_VERSION);
     iotcl_telemetry_set_number(msg, "random", rand() % 100); // test some random numbers
@@ -191,14 +189,15 @@ void app_task(void *pvParameters) {
     (void) pvParameters;
 
     // DO NOT print anything before we receive a message to avoice garbled output
-    #if 0
+
     // we want to wait for CM33 to start receiving messages to prevent halts and errors below.
+    #if 0
     while (!cm33_ipc_has_received_message()) {
         taskYIELD(); // wait for CM55
     }
     #endif
-
-    //printf("App Task: CM55 IPC is ready. Resuming the application...\n");
+    
+    printf("App Task: CM55 IPC is ready. Resuming the application...\n");
 
     char iotc_duid[IOTCL_CONFIG_DUID_MAX_LEN] = IOTCONNECT_DUID;
     if (0 == strlen(iotc_duid)) {
@@ -225,7 +224,7 @@ void app_task(void *pvParameters) {
     config.callbacks.cmd_cb = on_command;
     config.callbacks.ota_cb = on_ota;
     setup_iotconnect_sdk_credentials(&config);
-    
+
 
     const char * conn_type_str = "(UNKNOWN)";
     if (config.connection_type == IOTC_CT_AWS) {

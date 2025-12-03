@@ -40,42 +40,47 @@
 *******************************************************************************/
 
 #include "cybsp.h"
+#include "retarget_io_init.h"
+#include "ipc_communication.h"
 
+#ifdef GESTURE_MODEL
+#include "radar.h"
+#else
+#ifdef FALLDETECTION_MODEL
+#include "imu.h"
+#else
+#ifdef DIRECTIONOFARRIVAL_MODEL
+#include "doa.h"
+#else
+#include "audio.h"
+#endif
+#endif
+#endif
+
+#ifdef COMPONENT_FREERTOS
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "timers.h"
-
-// for TFM
-#include "tfm_ns_interface.h"
-#include "os_wrapper/common.h"
+#endif
 
 
-
-/*****************************************************************************
- * Macros
- *****************************************************************************/
 /* The timeout value in microsecond used to wait for core to be booted
     Use value 0U for infinite wait till the core is booted successfully.*/
 #define CM55_BOOT_WAIT_TIME_USEC            (10U)
-
-/*****************************************************************************
- * Function Prototypes
- *****************************************************************************/
-
-/*******************************************************************************
-* Global Variables
-********************************************************************************/
 
 
 void test_task(void * arg) {
     (void) arg;
     while(true) {
         // This works:
-        // printf("cm55-hello\n");
-        vTaskDelay(pdMS_TO_TICKS(10000));
+        ipc_payload_t* payload = cm55_ipc_get_payload_ptr();
+        payload->label_id = 1;
+        strcpy(payload->label, "hello");
+        printf("cm55-hello\n");
+        // cm55_ipc_send_to_cm33();
+        vTaskDelay(pdMS_TO_TICKS(3000));
     }
-
 }
 
 int main(void)
@@ -92,26 +97,39 @@ int main(void)
     /* Enable global interrupts */
     __enable_irq();
 
-    /* Initialize TF-M interface */
-    result = tfm_ns_interface_init();
-    if(result != OS_WRAPPER_SUCCESS)
-    {
-        CY_ASSERT(0);
-    }
+    /* Initialize retarget-io middleware */
+    init_retarget_io();
+
+/* Setup IPC communication for CM55*/
+    cm55_ipc_communication_setup();
 
     Cy_SysLib_Delay(50);
+#ifdef USE_TASKS
 
-    result = xTaskCreate(test_task, "TestTask", 4 * 1024, NULL, 3, NULL);
-    
+#if 0
+    printf("\x1b[2J\x1b[;H");
+#endif
+
+    /* Create the RTOS task */
+#ifdef GESTURE_MODEL
+    result = create_radar_task();
+#else
+#ifdef FALLDETECTION_MODEL
+    result = create_motion_sensor_task();
+#else
+#ifdef DIRECTIONOFARRIVAL_MODEL
+    result = create_doa_task();
+#else
+    result = create_audio_task();
+#endif
+#endif
+#endif
+
+#endif // USE_TASKS
+
+    (void) xTaskCreate(test_task, "TestTask", 4 * 1024, NULL, 3, NULL);
     /* Start the FreeRTOS scheduler. */
     vTaskStartScheduler();
-}
-
-/* Fix for undefined reference to tfm_ns_interface_init */
-uint32_t tfm_ns_interface_init(void)
-{
-    /* For CM55 with Mailbox, initialization is handled by BSP/IPC or is not required via this API */
-    return OS_WRAPPER_SUCCESS;
 }
 
 /* [] END OF FILE */
