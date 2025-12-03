@@ -61,7 +61,9 @@ static cy_ipc_pipe_callback_ptr_t ep1_cb_array[CY_IPC_CYPIPE_CLIENT_CNT];
 
 /* Allocate and initialize semaphores for the system operations. */
 CY_SECTION_SHAREDMEM
-static uint32_t ipc_sema_array[CY_IPC_SEMA_COUNT / CY_IPC_SEMA_PER_WORD];
+
+// TF-M will initialize the IPC semaphores, so not needed here unless TF-M is not used
+// static uint32_t ipc_sema_array[CY_IPC_SEMA_COUNT / CY_IPC_SEMA_PER_WORD];
 
 /* Local copy of the IPC message received
    This copy is not safe to be accessed from a task.
@@ -159,7 +161,8 @@ void cm33_ipc_communication_setup(void)
     .userPipeIsrHandler            = &cm33_ipc_pipe_isr
     };
 
-    Cy_IPC_Sema_Init(IPC0_SEMA_CH_NUM, CY_IPC_SEMA_COUNT, ipc_sema_array);
+    // TF-M will initialize the IPC semaphores, so do not do it here
+    // Cy_IPC_Sema_Init(IPC0_SEMA_CH_NUM, CY_IPC_SEMA_COUNT, ipc_sema_array);
 
     Cy_IPC_Pipe_Config(cm33_ipc_pipe_ep_array);
 

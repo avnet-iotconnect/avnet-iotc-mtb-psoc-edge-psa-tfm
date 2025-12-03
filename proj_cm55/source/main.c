@@ -43,18 +43,16 @@
 #include "retarget_io_init.h"
 #include "ipc_communication.h"
 
-#ifdef GESTURE_MODEL
+#if defined(GESTURE_MODEL)
 #include "radar.h"
-#else
-#ifdef FALLDETECTION_MODEL
+#elif defined(FALLDETECTION_MODEL)
 #include "imu.h"
-#else
-#ifdef DIRECTIONOFARRIVAL_MODEL
+#elif defined(DIRECTIONOFARRIVAL_MODEL)
 #include "doa.h"
-#else
+#elif defined(MOTION_SENSOR)
+#include "motion_task.h"
+#elif defined(COUGH_MODEL) || defined(ALARM_MODEL) || defined(BABYCRY_MODEL)
 #include "audio.h"
-#endif
-#endif
 #endif
 
 #ifdef COMPONENT_FREERTOS
@@ -69,17 +67,17 @@
     Use value 0U for infinite wait till the core is booted successfully.*/
 #define CM55_BOOT_WAIT_TIME_USEC            (10U)
 
-
+// This can be used for troubleshooting IPC issues
 void test_task(void * arg) {
     (void) arg;
     while(true) {
         // This works:
         ipc_payload_t* payload = cm55_ipc_get_payload_ptr();
         payload->label_id = 1;
-        strcpy(payload->label, "hello");
-        printf("cm55-hello\n");
-        // cm55_ipc_send_to_cm33();
-        vTaskDelay(pdMS_TO_TICKS(3000));
+        strcpy(payload->label, "test");
+        printf("Hello from CM55 test\n");
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        cm55_ipc_send_to_cm33();
     }
 }
 
@@ -100,34 +98,30 @@ int main(void)
     /* Initialize retarget-io middleware */
     init_retarget_io();
 
-/* Setup IPC communication for CM55*/
+    /* Setup IPC communication for CM55*/
     cm55_ipc_communication_setup();
 
     Cy_SysLib_Delay(50);
-#ifdef USE_TASKS
 
 #if 0
     printf("\x1b[2J\x1b[;H");
 #endif
 
     /* Create the RTOS task */
-#ifdef GESTURE_MODEL
+#if defined(GESTURE_MODEL)
     result = create_radar_task();
-#else
-#ifdef FALLDETECTION_MODEL
+#elif defined(FALLDETECTION_MODEL)
     result = create_motion_sensor_task();
-#else
-#ifdef DIRECTIONOFARRIVAL_MODEL
+#elif defined(DIRECTIONOFARRIVAL_MODEL)
     result = create_doa_task();
-#else
+#elif defined(MOTION_SENSOR)
+    result = create_motion_sensor_oritentation_task();
+#elif defined(COUGH_MODEL) || defined(ALARM_MODEL) || defined(BABYCRY_MODEL)
     result = create_audio_task();
+#else // IDLE or unknown
+    (void) result;
+    xTaskCreate(test_task, "TestTask", 4 * 1024, NULL, 3, NULL);
 #endif
-#endif
-#endif
-
-#endif // USE_TASKS
-
-    (void) xTaskCreate(test_task, "TestTask", 4 * 1024, NULL, 3, NULL);
     /* Start the FreeRTOS scheduler. */
     vTaskStartScheduler();
 }

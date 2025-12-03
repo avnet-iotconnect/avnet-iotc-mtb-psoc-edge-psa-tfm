@@ -60,10 +60,11 @@
 #define CY_IPC_MAX_ENDPOINTS            (5UL)
 #define CY_IPC_CYPIPE_CLIENT_CNT        (8UL)
 
-#define CY_IPC_CHAN_CYPIPE_EP1          (4UL)
-#define CY_IPC_INTR_CYPIPE_EP1          (4UL)
-#define CY_IPC_CHAN_CYPIPE_EP2          (15UL)
-#define CY_IPC_INTR_CYPIPE_EP2          (5UL)
+/* IPC0 channels - these are safe and don't conflict with TF-M (which uses 8,9,10) */
+#define CY_IPC_CHAN_CYPIPE_EP1          (4UL)   /* IPC0 user channel (avoids TF-M's 8,9,10) */
+#define CY_IPC_INTR_CYPIPE_EP1          (4UL)   /* IPC0 interrupt (avoids TF-M's 6,7) */
+#define CY_IPC_CHAN_CYPIPE_EP2          (15UL)  /* IPC0 channel */
+#define CY_IPC_INTR_CYPIPE_EP2          (5UL)   /* IPC0 interrupt */
 
 /* IPC Pipe Endpoint-1 config */
 #define CY_IPC_CYPIPE_CHAN_MASK_EP1     CY_IPC_CH_MASK(CY_IPC_CHAN_CYPIPE_EP1)
@@ -82,13 +83,13 @@
 #define CM55_IPC_PIPE_CLIENT_ID         (5UL)
 
 /* Combined Interrupt Mask */
-#define CY_IPC_CYPIPE_INTR_MASK         ( CY_IPC_CYPIPE_CHAN_MASK_EP1 | CY_IPC_CYPIPE_CHAN_MASK_EP2)
+#define CY_IPC_CYPIPE_INTR_MASK         (CY_IPC_CYPIPE_CHAN_MASK_EP1 | CY_IPC_CYPIPE_CHAN_MASK_EP2)
 
 /*******************************************************************************
 * Enumeration
 *******************************************************************************/
 
-/* The actual payload being sent via IPC. This will vary b etween applications */
+/* The actual payload being sent via IPC. This will vary between applications */
 typedef struct {
     uint32_t    label_id;
     char        label[256];

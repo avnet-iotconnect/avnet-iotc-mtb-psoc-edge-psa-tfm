@@ -76,23 +76,23 @@
  ********************************************************************************/
 
 static mtb_hal_i2c_t CYBSP_I2C_CONTROLLER_hal_obj;
-cy_stc_scb_i2c_context_t CYBSP_I2C_CONTROLLER_context;
+static cy_stc_scb_i2c_context_t CYBSP_I2C_CONTROLLER_context;
 
 volatile long tick1 = 0;
 
-uint8_t send_data = 0;
-uint8_t IMU_FLAG = 0;
+static uint8_t send_data = 0;
+static uint8_t IMU_FLAG = 0;
 
 /* Motion sensor task handle */
 static TaskHandle_t motion_sensor_task_handle;
 
 /* Instance of BMI270 sensor structure */
-mtb_bmi270_data_t bmi270_data;
-mtb_bmi270_t bmi270;
+static mtb_bmi270_data_t bmi270_data;
+static mtb_bmi270_t bmi270;
 
 static const char* LABELS[IMAI_DATA_OUT_COUNT] = IMAI_SYMBOL_MAP;
 
-cy_stc_sysint_t timer_irq_cfg =
+static cy_stc_sysint_t timer_irq_cfg =
 {
     .intrSrc = CYBSP_GENERAL_PURPOSE_TIMER_IRQ,
     .intrPriority = TIMER_INT_PRIORITY
@@ -379,7 +379,7 @@ static void task_motion(void* pvParameters)
     }
 }
 /*******************************************************************************
- * Function Name: create_motion_sensor_task
+ * Function Name: create_motion_sensor_oritentation_task
  ********************************************************************************
  * Summary:
  *  Function that creates the motion sensor task.

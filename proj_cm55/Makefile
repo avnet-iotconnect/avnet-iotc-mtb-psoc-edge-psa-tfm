@@ -43,18 +43,8 @@ include ../common.mk
 
 # model selection: moved to common.mk
 
-ifeq (,$(filter $(TARGET),APP_KIT_PSE84_EVAL_EPC2 APP_KIT_PSE84_EVAL_EPC4))
-else
-    ifeq (,$(filter $(strip $(MODEL_SELECTION)),COUGH_MODEL ALARM_MODEL BABYCRY_MODEL DIRECTIONOFARRIVAL_MODEL FALLDETECTION_MODEL))
-        $(error Invalid MODEL_SELECTION "$(MODEL_SELECTION)" for TARGET=$(TARGET))
-    endif
-endif
-
-ifeq (,$(filter $(TARGET),APP_KIT_PSE84_AI))
-else
-    ifeq (,$(filter $(strip $(MODEL_SELECTION)),COUGH_MODEL ALARM_MODEL BABYCRY_MODEL GESTURE_MODEL DIRECTIONOFARRIVAL_MODEL FALLDETECTION_MODEL))
-        $(error Invalid MODEL_SELECTION "$(MODEL_SELECTION)" for TARGET=$(TARGET))
-    endif
+ifeq (,$(filter $(strip $(MODEL_SELECTION)),COUGH_MODEL ALARM_MODEL BABYCRY_MODEL DIRECTIONOFARRIVAL_MODEL FALLDETECTION_MODEL MOTION_SENSOR IDLE))
+    $(error Invalid MODEL_SELECTION "$(MODEL_SELECTION)" for TARGET=$(TARGET))
 endif
 
 # Name of application (used to derive name of final linked file).
@@ -187,30 +177,46 @@ DEFINES+=DIRECTIONOFARRIVAL_MODEL
 LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/doa_lib_eval.a
 endif
 
+ifeq (MOTION_SENSOR, $(MODEL_SELECTION))
+DEFINES+=MOTION_SENSOR
+endif
 
 ifeq (GESTURE_MODEL, $(MODEL_SELECTION))
-  CY_IGNORE+=source/audio.c
-  CY_IGNORE+=source/imu.c
-  CY_IGNORE+=source/doa.c
+  CY_IGNORE += source/audio.c
+  CY_IGNORE += source/imu.c
+  CY_IGNORE += source/doa.c
+  CY_IGNORE += source/motion_detection.c
+else ifeq (FALLDETECTION_MODEL, $(MODEL_SELECTION))
+  CY_IGNORE += source/radar.c
+  CY_IGNORE += source/radar
+  CY_IGNORE += source/audio.c
+  CY_IGNORE += source/doa.c
+  CY_IGNORE += source/motion_detection.c
+else ifeq (MOTION_SENSOR, $(MODEL_SELECTION))
+  CY_IGNORE += source/radar.c
+  CY_IGNORE += source/radar
+  CY_IGNORE += source/audio.c
+  CY_IGNORE += source/doa.c
+  CY_IGNORE += source/imu.c
+else ifeq (DIRECTIONOFARRIVAL_MODEL, $(MODEL_SELECTION))
+  CY_IGNORE += source/radar.c
+  CY_IGNORE += source/radar
+  CY_IGNORE += source/audio.c
+  CY_IGNORE += source/imu.c
+  CY_IGNORE += source/motion_detection.c
+else ifneq (,$(filter $(MODEL_SELECTION), COUGH_MODEL ALARM_MODEL BABYCRY_MODEL))
+  CY_IGNORE += source/radar.c
+  CY_IGNORE += source/radar
+  CY_IGNORE += source/imu.c
+  CY_IGNORE += source/doa.c
+  CY_IGNORE += source/motion_detection.c
 else
-  ifeq (FALLDETECTION_MODEL, $(MODEL_SELECTION))
-    CY_IGNORE+=source/radar.c
-    CY_IGNORE+=source/radar
-    CY_IGNORE+=source/audio.c
-    CY_IGNORE+=source/doa.c
-  else
-    ifeq (DIRECTIONOFARRIVAL_MODEL, $(MODEL_SELECTION))
-      CY_IGNORE+=source/radar.c
-      CY_IGNORE+=source/radar
-      CY_IGNORE+=source/audio.c
-      CY_IGNORE+=source/imu.c
-    else
-      CY_IGNORE+=source/radar.c
-      CY_IGNORE+=source/radar
-      CY_IGNORE+=source/imu.c
-      CY_IGNORE+=source/doa.c
-    endif
-  endif
+  CY_IGNORE += source/radar.c
+  CY_IGNORE += source/radar
+  CY_IGNORE += source/audio.c
+  CY_IGNORE += source/imu.c
+  CY_IGNORE += source/doa.c
+  CY_IGNORE += source/motion_detection.c
 endif
 
 # Select softfp or hardfp floating point. Default is softfp.

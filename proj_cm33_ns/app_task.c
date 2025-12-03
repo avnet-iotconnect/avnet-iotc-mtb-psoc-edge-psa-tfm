@@ -40,6 +40,8 @@
 #define APP_VERSION ("F-" APP_VERSION_BASE)
 #elif defined(GESTURE_MODEL)
 #define APP_VERSION ("G-" APP_VERSION_BASE)
+#elif defined(MOTION_SENSOR)
+#define APP_VERSION ("M-" APP_VERSION_BASE)
 #else
 #define APP_VERSION ("?-" APP_VERSION_BASE)
 #endif
@@ -189,14 +191,11 @@ void app_task(void *pvParameters) {
     (void) pvParameters;
 
     // DO NOT print anything before we receive a message to avoice garbled output
-
     // we want to wait for CM33 to start receiving messages to prevent halts and errors below.
-    #if 0
     while (!cm33_ipc_has_received_message()) {
         taskYIELD(); // wait for CM55
     }
-    #endif
-    
+
     printf("App Task: CM55 IPC is ready. Resuming the application...\n");
 
     char iotc_duid[IOTCL_CONFIG_DUID_MAX_LEN] = IOTCONNECT_DUID;
@@ -210,7 +209,7 @@ void app_task(void *pvParameters) {
         printf("Generated device unique ID (DUID) is: %s\n", iotc_duid);
     }
 
-     psa_mqtt_setup_huk();
+    psa_mqtt_setup_huk();
 
     IotConnectClientConfig config;
     iotconnect_sdk_init_config(&config);

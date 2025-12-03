@@ -72,14 +72,17 @@ endif
 # model selection
 
 # For KIT_PSE84_EVAL_EPC2, KIT_PSE84_EVAL_EPC4 and KIT_PSE84_AI below models are supported.
+####### WARNING AUDIO TASKS (COUGH, ALARM, BABYCRY, DOA) TASK ARE NOT SUPPORTED AS OF NOW. ##########
 # COUGH_MODEL
 # ALARM_MODEL
-# BABYCRY_MODEL
+# BABYCRY_MODE
 # DIRECTIONOFARRIVAL_MODEL
 # FALLDETECTION_MODEL
-# GESTURE_MODEL (For KIT_PSE84_AI only)
+# GESTURE_MODEL (Reserved for future boards)
+# MOTION_SENSOR (No AI, just ure IMU)
+# IDLE (For testing only - will send dummy IPC messages to CM33)
 
-MODEL_SELECTION = BABYCRY_MODEL
+MODEL_SELECTION = IDLE
 
 #Config file for postbuild sign and merge operations.
 #NOTE:Check the JSON file for the command parameters

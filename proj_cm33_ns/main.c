@@ -222,7 +222,7 @@ int main(void)
     }
 
     /* Setup IPC communication for CM33 - after TF-M init to avoid IPC conflicts */
-    // cm33_ipc_communication_setup();
+    cm33_ipc_communication_setup();
 
     /* \x1b[2J\x1b[;H - ANSI ESC sequence to clear screen. */
     printf("\x1b[2J\x1b[;H");
