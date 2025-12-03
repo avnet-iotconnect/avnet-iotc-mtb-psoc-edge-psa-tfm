@@ -211,8 +211,7 @@ void app_task(void *pvParameters) {
         printf("Generated device unique ID (DUID) is: %s\n", iotc_duid);
     }
 
-    /* psa_mqtt_setup_huk() is now called in main() before the scheduler starts */
-    // psa_mqtt_setup_huk();
+     psa_mqtt_setup_huk();
 
     IotConnectClientConfig config;
     iotconnect_sdk_init_config(&config);

@@ -19,6 +19,7 @@
 // NOTE: 25519 could have issues with some HTTPS servers. Migth be good to remove it as well if it is active.
 #undef MBEDTLS_ECP_DP_SECP192R1_ENABLED
 #undef MBEDTLS_ECP_DP_SECP224R1_ENABLED
+// we will use this for the MQTT mutual TLS with ECC
 //#define MBEDTLS_ECP_DP_SECP256R1_ENABLED
 #undef MBEDTLS_ECP_DP_SECP384R1_ENABLED
 #undef MBEDTLS_ECP_DP_SECP521R1_ENABLED
@@ -28,6 +29,8 @@
 #undef MBEDTLS_ECP_DP_BP256R1_ENABLED
 #undef MBEDTLS_ECP_DP_BP384R1_ENABLED
 #undef MBEDTLS_ECP_DP_BP512R1_ENABLED
+// This is likely needed for RSA TLS 1.3 with /IOTCONNECT discovery/identity servers
+// but we coudldn't get it to work with PSA + RSA private keys
 #undef MBEDTLS_ECP_DP_CURVE25519_ENABLED
 #undef MBEDTLS_ECP_DP_CURVE448_ENABLED
 
@@ -38,12 +41,17 @@
 // #undef MBEDTLS_SSL_PROTO_TLS1_3
 
 
-#define MBEDTLS_SSL_PROTO_TLS1_3
+// in reality MBEDTLS_SSL_PROTO_TLS1_3 can work with MQTT, but HTTP client seems to have issues
+#undef MBEDTLS_SSL_PROTO_TLS1_3
+
+#ifdef MBEDTLS_SSL_PROTO_TLS1_3
+// TLS 1.3 related defines
 // #define MBEDTLS_SSL_TLS1_3_COMPATIBILITY_MODE
 #define MBEDTLS_SSL_KEEP_PEER_CERTIFICATE
 #define MBEDTLS_HKDF_C
 #define MBEDTLS_SSL_TLS1_3_KEY_EXCHANGE_MODE_EPHEMERAL_ENABLED
 #define MBEDTLS_SSL_TLS1_3_KEY_EXCHANGE_MODE_PSK_EPHEMERAL_ENABLED
+#endif // MBEDTLS_SSL_PROTO_TLS1_3
 
 // Ensure ECDSA is supported along with our key SECP256R1 curve
 #define MBEDTLS_ECDSA_C
@@ -78,8 +86,9 @@
 #undef MBEDTLS_KEY_EXCHANGE_DHE_RSA_ENABLED
 
 // RSA support for verifying server certificates (AmazonRootCA1 is RSA-2048)
-// #define MBEDTLS_RSA_C
-// #define MBEDTLS_PKCS1_V15
+// Required for ECDHE_RSA cipher suites - server uses RSA cert, key exchange is ECDHE
+#define MBEDTLS_RSA_C
+#define MBEDTLS_PKCS1_V15
 
 // TLS record buffer sizes
 // IN: Increased to 6KB to handle server certificate chain (AWS IoT Core sends ~5KB)
