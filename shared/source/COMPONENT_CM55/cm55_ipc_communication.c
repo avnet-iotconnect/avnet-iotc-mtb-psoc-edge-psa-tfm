@@ -45,8 +45,6 @@
 
 #include "ipc_communication.h"
 
-/* IPC DISABLED - entire implementation stubbed out */
-#if 0
 /*******************************************************************************
 * Global Variable(s)
 *******************************************************************************/
@@ -84,7 +82,7 @@ __STATIC_INLINE void handle_app_error(void)
 *  void
 *
 *******************************************************************************/
-static void Cy_SysIpcPipeIsrCm55(void)
+void Cy_SysIpcPipeIsrCm55(void)
 {
     Cy_IPC_Pipe_ExecuteCallback(CM55_IPC_PIPE_EP_ADDR);
 }
@@ -106,7 +104,6 @@ static void Cy_SysIpcPipeIsrCm55(void)
 void cm55_ipc_communication_setup(void)
 {
 
-    return;
     /* IPC pipe endpoint-1 and endpoint-2. CM55 <--> CM33 */
     static const cy_stc_ipc_pipe_config_t cm55_ipc_pipe_config =
     {
@@ -150,9 +147,8 @@ ipc_payload_t* cm55_ipc_get_payload_ptr(void)
     return &cm55_msg_data.payload;
 }
 
-void cm55_ipc_send_to_cm33_DISABLED(void)
+void cm55_ipc_send_to_cm33(void)
 {
-    return;
     cy_en_ipc_pipe_status_t pipe_status;
 
     cm55_msg_data.client_id = CM33_IPC_PIPE_CLIENT_ID;
@@ -165,10 +161,3 @@ void cm55_ipc_send_to_cm33_DISABLED(void)
         handle_app_error();
     }
 }
-#endif /* IPC DISABLED */
-
-/* Stub implementations */
-static ipc_payload_t cm55_stub_payload = {0};
-void cm55_ipc_communication_setup(void) { }
-ipc_payload_t* cm55_ipc_get_payload_ptr(void) { return &cm55_stub_payload; }
-void cm55_ipc_send_to_cm33(void) { }

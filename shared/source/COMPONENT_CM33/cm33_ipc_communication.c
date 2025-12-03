@@ -44,14 +44,11 @@
  */
 
 #include <string.h>
-#include <stdbool.h>
-#include "ipc_communication.h"
-
-/* IPC DISABLED - entire implementation stubbed out */
-#if 0
 #include "cybsp.h"
 #include "FreeRTOS.h"
 #include "retarget_io_init.h"
+#include "ipc_communication.h"
+
 
 /*******************************************************************************
 * Global Variable(s)
@@ -108,7 +105,7 @@ static void cm33_msg_callback(uint32_t * msg_data)
 *  void
 *
 *******************************************************************************/
-static void cm33_ipc_pipe_isr(void)
+void cm33_ipc_pipe_isr(void)
 {
     Cy_IPC_Pipe_ExecuteCallback(CM33_IPC_PIPE_EP_ADDR);
 }
@@ -130,7 +127,6 @@ static void cm33_ipc_pipe_isr(void)
 *******************************************************************************/
 void cm33_ipc_communication_setup(void)
 {
-    return;
     /* IPC pipe endpoint-1 and endpoint-2. CM33 <--> CM55 */
     static const cy_stc_ipc_pipe_config_t cm33_ipc_pipe_config =
     {
@@ -163,11 +159,7 @@ void cm33_ipc_communication_setup(void)
     .userPipeIsrHandler            = &cm33_ipc_pipe_isr
     };
 
-    /* NOTE: Do NOT call Cy_IPC_Sema_Init() here!
-     * In a TF-M/TrustZone environment, IPC0 is protected by PPC and the
-     * secure world (TF-M) initializes the IPC semaphores. Attempting to
-     * reinitialize them from the non-secure world will cause a PPC violation.
-     */
+    Cy_IPC_Sema_Init(IPC0_SEMA_CH_NUM, CY_IPC_SEMA_COUNT, ipc_sema_array);
 
     Cy_IPC_Pipe_Config(cm33_ipc_pipe_ep_array);
 
@@ -185,7 +177,6 @@ void cm33_ipc_communication_setup(void)
 
 bool cm33_ipc_has_received_message(void)
 {
-    return true;
     taskENTER_CRITICAL();
     bool ret = ipc_has_received_message;
     ipc_has_received_message = false;
@@ -195,15 +186,13 @@ bool cm33_ipc_has_received_message(void)
 
 void cm33_ipc_safe_copy_last_payload(ipc_payload_t* target)
 {
-    return;
     taskENTER_CRITICAL();
     memcpy(target, &ipc_recv_msg.payload, sizeof(ipc_payload_t));
     taskEXIT_CRITICAL();
 }
 
-bool cm33_ipc_safe_get_and_clear_cached_detection_DISABLED(ipc_payload_t* target)
+bool cm33_ipc_safe_get_and_clear_cached_detection(ipc_payload_t* target)
 {
-    return false;
     taskENTER_CRITICAL();
     if (ipc_has_saved_detection) {
         memcpy(target, &ipc_last_detection_payload, sizeof(ipc_payload_t));
@@ -217,10 +206,3 @@ bool cm33_ipc_safe_get_and_clear_cached_detection_DISABLED(ipc_payload_t* target
         return false;
     }
 }
-#endif /* IPC DISABLED */
-
-/* Stub implementations */
-void cm33_ipc_communication_setup(void) { }
-bool cm33_ipc_has_received_message(void) { return false; }
-void cm33_ipc_safe_copy_last_payload(ipc_payload_t* target) { (void)target; }
-bool cm33_ipc_safe_get_and_clear_cached_detection(ipc_payload_t* target) { (void)target; return false; }
