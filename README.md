@@ -1,13 +1,12 @@
 # Project Setup
 
-- Launch the BSP Configurator - In MTB Assistant, choose Application page -> Configure Device
-  - Ensure that View->Parameters is enabled in the menus
-  - Select the *Edge Protect Solution* in the list
-  - At *Edge Protect Solution - Parameters*, in the right-side panel, select Launch Edge Protect Configurator.
-  - Select TF-M Profile **Large**
-  - Click the Save button, close the window and then File->Save in the menu of the Configurator App
+- Program and launch the application
 
-Apply a fix to secure-soeckets by manually editing *mtb_shared/secure-sockets/release-v3.12.0/source/COMPONENT_MBEDTLS/cy_tls.c* around line 1667 and surround this code with *if(tls_identity)*:
+Once the project has been created, 
+apply a fix to secure-soeckets by manually editing 
+*mtb_shared/secure-sockets/release-v3.12.0/source/COMPONENT_MBEDTLS/cy_tls.c* around line 1667 
+and surround this code with *if(tls_identity)*:
+```c
     /* IOTC_FIX: Only setup opaque key if tls_identity is provided (mTLS case).
      * For server-only TLS (no client cert), tls_identity is NULL and we skip this. */
     if(tls_identity)
@@ -23,12 +22,20 @@ Apply a fix to secure-soeckets by manually editing *mtb_shared/secure-sockets/re
             goto cleanup;
         }
     }
+```
 
+Set your Wi-Fi credentials at [proj_cm33_ns/wifi_config.h](proj_cm33_ns/wifi_config.h).
+Set your IOTCONNECT_ENV and IOTCONNECT_CPID at [proj_cm33_ns/wifi_config.h](proj_cm33_ns/wifi_config.h) 
+per your /IOTCONNECT account.
+If IOTCONNECT_DUID is not set, the device will generate a unique DUID and will print it during startup.
 
-When launching for the frst time, the code will generate a certificate. 
-Use that printed cert to register to AWS IoTCore or IoTConnect AWS trial account (use your own certificate when creating devices). 
-The same certificate will be printed upon subsequent reboots.
-A key derived from HUK will be used for Mutual TLS.
+When launching for the frst time, the code will derive a private key based on the immutable 
+Hardware Unique Key (HUK) that is provisioned on the board,
+and generate a certificate that will be stored in PSA Internal Trusted Storage (ITS).
+The same certificate will be retrieved and printed upon subsequent reboots.
 
-Set your Wi-Fi credentials and MQTT credentials at [proj_cm33_ns/mqtt_client_config.h](proj_cm33_ns/mqtt_client_config.h) accordingly.
-Re-building and launching the project should connect the device to the MQTT server.
+Use the board certificate and your device DUID to register the device with /IOTCONNECT. 
+Ensure to use the *Use your own certificate* option when creating devices.
+
+Once the device is registered in /IOTCONNECT,
+restart the device in order to have it connect.

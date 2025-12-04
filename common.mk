@@ -82,7 +82,7 @@ endif
 # MOTION_SENSOR (No AI, just ure IMU)
 # IDLE (For testing only - will send dummy IPC messages to CM33)
 
-MODEL_SELECTION = IDLE
+MODEL_SELECTION = MOTION_SENSOR
 
 #Config file for postbuild sign and merge operations.
 #NOTE:Check the JSON file for the command parameters
