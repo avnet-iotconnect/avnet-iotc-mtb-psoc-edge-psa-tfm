@@ -25,6 +25,7 @@
 #define CRT_DER_ITS_UID     (8U)                          // New ITS slot for certificate
 #define CRT_DER_DATA_SIZE   (512)
 #define KEY_DERIVATION_INPUT_DATA   "Avnet IoTConnect P256R1 Client v1"
+#define CRT_DER_HEADER_VERSION  (0xA1)
 
 /* Global state */
 static psa_key_id_t key_id = PSA_KEY_ID_NULL;
@@ -71,52 +72,51 @@ void psa_mqtt_setup_huk(void)
         printf("Failed to malloc DER buffer\n");
         goto error_cleanup;
     }
-    der_data->hdr.version = 1;
+    der_data->hdr.version = CRT_DER_HEADER_VERSION;
 
+    /* Derive volatile key from HUK */
+    psa_key_derivation_operation_t op = PSA_KEY_DERIVATION_OPERATION_INIT;
+    status = psa_key_derivation_setup(&op, PSA_ALG_HKDF(PSA_ALG_SHA_256));
+    if (status != PSA_SUCCESS) goto error_cleanup;
+
+    status = psa_key_derivation_input_key(&op, PSA_KEY_DERIVATION_INPUT_SECRET, HUK_KEY_ID);
+    if (status != PSA_SUCCESS) {
+        printf("HUK access failed: 0x%lx\n", (unsigned long)status);
+        psa_key_derivation_abort(&op);
+        goto error_cleanup;
+    }
+
+    status = psa_key_derivation_input_bytes(
+        &op, 
+        PSA_KEY_DERIVATION_INPUT_INFO,
+        (const uint8_t*)KEY_DERIVATION_INPUT_DATA, 
+        strlen(KEY_DERIVATION_INPUT_DATA)
+    );
+    if (status != PSA_SUCCESS) {
+        psa_key_derivation_abort(&op);
+        goto error_cleanup;
+    }
+
+    psa_key_attributes_t attrs = PSA_KEY_ATTRIBUTES_INIT;
+    psa_set_key_type(&attrs, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
+    psa_set_key_bits(&attrs, 256);
+    psa_set_key_usage_flags(&attrs, PSA_KEY_USAGE_SIGN_HASH);
+    psa_set_key_algorithm(&attrs, PSA_ALG_ECDSA(PSA_ALG_SHA_256));
+    psa_set_key_lifetime(&attrs, PSA_KEY_LIFETIME_VOLATILE);
+
+    status = psa_key_derivation_output_key(&attrs, &op, &key_id);
+    psa_key_derivation_abort(&op);
+    if (status != PSA_SUCCESS) {
+        printf("HUK derivation failed: 0x%lx\n", (unsigned long)status);
+        goto error_cleanup;
+    }
     /* ------------------- Check if certificate exists in ITS ------------------- */
     size_t get_size = 0;
     // psa_its_remove(CRT_DER_ITS_UID); // for testing only. Uncomment to cycle the certificate.
     status = psa_its_get(CRT_DER_ITS_UID, 0, sizeof(crt_der_data_t), der_data, &get_size);
 
-    if (status == PSA_SUCCESS && get_size >= sizeof(crt_der_header_t) && der_data->hdr.version == 1) {
+    if (status == PSA_SUCCESS && get_size >= sizeof(crt_der_header_t) && der_data->hdr.version == CRT_DER_HEADER_VERSION) {
         printf("PSA: Certificate found in ITS slot %d, size=%d\n", (int) CRT_DER_ITS_UID, der_data->hdr.size);
-
-        /* Derive volatile key from HUK (always done) */
-        psa_key_derivation_operation_t op = PSA_KEY_DERIVATION_OPERATION_INIT;
-        status = psa_key_derivation_setup(&op, PSA_ALG_HKDF(PSA_ALG_SHA_256));
-        if (status != PSA_SUCCESS) goto error_cleanup;
-
-        status = psa_key_derivation_input_key(&op, PSA_KEY_DERIVATION_INPUT_SECRET, HUK_KEY_ID);
-        if (status != PSA_SUCCESS) {
-            printf("HUK access failed: 0x%lx\n", (unsigned long)status);
-            psa_key_derivation_abort(&op);
-            goto error_cleanup;
-        }
-
-        status = psa_key_derivation_input_bytes(
-            &op,
-            PSA_KEY_DERIVATION_INPUT_INFO,
-            (const uint8_t*)KEY_DERIVATION_INPUT_DATA,
-            strlen(KEY_DERIVATION_INPUT_DATA)
-        );
-        if (status != PSA_SUCCESS) {
-            psa_key_derivation_abort(&op);
-            goto error_cleanup;
-        }
-
-        psa_key_attributes_t attrs = PSA_KEY_ATTRIBUTES_INIT;
-        psa_set_key_type(&attrs, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
-        psa_set_key_bits(&attrs, 256);
-        psa_set_key_usage_flags(&attrs, PSA_KEY_USAGE_SIGN_HASH);
-        psa_set_key_algorithm(&attrs, PSA_ALG_ECDSA(PSA_ALG_SHA_256));
-        psa_set_key_lifetime(&attrs, PSA_KEY_LIFETIME_VOLATILE);
-
-        status = psa_key_derivation_output_key(&attrs, &op, &key_id);
-        psa_key_derivation_abort(&op);
-        if (status != PSA_SUCCESS) {
-            printf("HUK derivation failed: 0x%lx\n", (unsigned long)status);
-            goto error_cleanup;
-        }
 
         /* Convert stored DER to PEM for printing */
         size_t pem_len;
@@ -140,43 +140,6 @@ void psa_mqtt_setup_huk(void)
     /* ------------------- No cert in ITS → generate once and store ------------------- */
     else {
         printf("PSA_HUK: No certificate in ITS, generating new identity...\n");
-
-        /* Derive volatile key from HUK */
-        psa_key_derivation_operation_t op = PSA_KEY_DERIVATION_OPERATION_INIT;
-        status = psa_key_derivation_setup(&op, PSA_ALG_HKDF(PSA_ALG_SHA_256));
-        if (status != PSA_SUCCESS) goto error_cleanup;
-
-        status = psa_key_derivation_input_key(&op, PSA_KEY_DERIVATION_INPUT_SECRET, HUK_KEY_ID);
-        if (status != PSA_SUCCESS) {
-            printf("HUK access failed: 0x%lx\n", (unsigned long)status);
-            psa_key_derivation_abort(&op);
-            goto error_cleanup;
-        }
-
-        status = psa_key_derivation_input_bytes(
-            &op, 
-            PSA_KEY_DERIVATION_INPUT_INFO,
-            (const uint8_t*)KEY_DERIVATION_INPUT_DATA, 
-            strlen(KEY_DERIVATION_INPUT_DATA)
-        );
-        if (status != PSA_SUCCESS) {
-            psa_key_derivation_abort(&op);
-            goto error_cleanup;
-        }
-
-        psa_key_attributes_t attrs = PSA_KEY_ATTRIBUTES_INIT;
-        psa_set_key_type(&attrs, PSA_KEY_TYPE_ECC_KEY_PAIR(PSA_ECC_FAMILY_SECP_R1));
-        psa_set_key_bits(&attrs, 256);
-        psa_set_key_usage_flags(&attrs, PSA_KEY_USAGE_SIGN_HASH);
-        psa_set_key_algorithm(&attrs, PSA_ALG_ECDSA(PSA_ALG_SHA_256));
-        psa_set_key_lifetime(&attrs, PSA_KEY_LIFETIME_VOLATILE);
-
-        status = psa_key_derivation_output_key(&attrs, &op, &key_id);
-        psa_key_derivation_abort(&op);
-        if (status != PSA_SUCCESS) {
-            printf("HUK derivation failed: 0x%lx\n", (unsigned long)status);
-            goto error_cleanup;
-        }
 
         /* Generate certificate using original function */
         mbedtls_pk_context pk_context;
@@ -231,7 +194,9 @@ void psa_mqtt_setup_huk(void)
 error_cleanup:
     if (der_data) free(der_data);
     key_id = PSA_KEY_ID_NULL;
-    psa_its_remove(CRT_DER_ITS_UID);
+    // Trnasient errors could cause real problems here, 
+    // Probably not safe to delete the cert here:
+    // psa_its_remove(CRT_DER_ITS_UID); 
 }
 
 /* Configure security_info with PSA cert and opaque key */
