@@ -183,7 +183,6 @@ static void setup_tickless_idle_timer(void)
  *  int
  *
  ******************************************************************************/
-
 int main(void)
 {
     cy_rslt_t result;
@@ -233,12 +232,11 @@ int main(void)
     printf("CM33 /IOTCONNECT App Task Starting. Waiting for CM55 IPC to start...\n");
 
 
-    // Cy_SysEnableCM55(MXCM55, CY_CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
-    // replaced with below:
-
-    /* Enable CM55. Use tfm_hal_boot_ns_cpu() which calls into secure world
+    /* Cy_SysEnableCM55(MXCM55, CY_CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
+     * replaced with below:
+     * Use tfm_hal_boot_ns_cpu() which calls into secure world
      * where it has permission to access power management registers.
-     * Direct Cy_SysEnableCM55() call from NS code causes PPC violation. */
+     * */
     tfm_hal_boot_ns_cpu(CY_CM55_APP_BOOT_ADDR);
 
     /* DO NOT PRINT ANYTHING after this line until we sync. This should avoid partial lines in logs. */

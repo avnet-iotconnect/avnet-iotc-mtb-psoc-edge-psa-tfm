@@ -25,7 +25,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-#define APP_VERSION_BASE "1.1.1"
+#define APP_VERSION_BASE "1.0.0"
 
 // Defined in common.mk then dereference in this Makefile with DEFINES+=
 #if defined(COUGH_MODEL)
@@ -178,8 +178,8 @@ static cy_rslt_t publish_telemetry(void) {
     IotclMessageHandle msg = iotcl_telemetry_create();
     iotcl_telemetry_set_string(msg, "version", APP_VERSION);
     iotcl_telemetry_set_number(msg, "random", rand() % 100); // test some random numbers
-    iotcl_telemetry_set_number(msg, "class_id", payload.label_id);
-    iotcl_telemetry_set_string(msg, "class", payload.label);
+    iotcl_telemetry_set_number(msg, "event_id", payload.label_id);
+    iotcl_telemetry_set_string(msg, "event", payload.label);
 	iotcl_telemetry_set_bool(msg, "event_detected", payload.label_id > 0);
 
     iotcl_mqtt_send_telemetry(msg, false);
