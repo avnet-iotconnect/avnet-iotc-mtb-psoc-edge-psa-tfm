@@ -24,6 +24,7 @@
 #define HUK_KEY_ID          ((psa_key_id_t)0x7FFF0000U)   // Factory test key - die-unique, always accessible
 #define CRT_DER_ITS_UID     (8U)                          // New ITS slot for certificate
 #define CRT_DER_DATA_SIZE   (512)
+#define KEY_DERIVATION_INPUT_DATA   "Avnet IoTConnect P256R1 Client v1"
 
 /* Global state */
 static psa_key_id_t key_id = PSA_KEY_ID_NULL;
@@ -74,10 +75,11 @@ void psa_mqtt_setup_huk(void)
 
     /* ------------------- Check if certificate exists in ITS ------------------- */
     size_t get_size = 0;
+    // psa_its_remove(CRT_DER_ITS_UID); // for testing only. Uncomment to cycle the certificate.
     status = psa_its_get(CRT_DER_ITS_UID, 0, sizeof(crt_der_data_t), der_data, &get_size);
 
     if (status == PSA_SUCCESS && get_size >= sizeof(crt_der_header_t) && der_data->hdr.version == 1) {
-        printf("PSA_HUK: Certificate found in ITS slot 8, size=%d\n", der_data->hdr.size);
+        printf("PSA: Certificate found in ITS slot %d, size=%d\n", (int) CRT_DER_ITS_UID, der_data->hdr.size);
 
         /* Derive volatile key from HUK (always done) */
         psa_key_derivation_operation_t op = PSA_KEY_DERIVATION_OPERATION_INIT;
@@ -91,8 +93,12 @@ void psa_mqtt_setup_huk(void)
             goto error_cleanup;
         }
 
-        status = psa_key_derivation_input_bytes(&op, PSA_KEY_DERIVATION_INPUT_INFO,
-                                                (const uint8_t*)"Avnet IoTConnect P256R1 Client v1", 41);
+        status = psa_key_derivation_input_bytes(
+            &op,
+            PSA_KEY_DERIVATION_INPUT_INFO,
+            (const uint8_t*)KEY_DERIVATION_INPUT_DATA,
+            strlen(KEY_DERIVATION_INPUT_DATA)
+        );
         if (status != PSA_SUCCESS) {
             psa_key_derivation_abort(&op);
             goto error_cleanup;
@@ -125,7 +131,7 @@ void psa_mqtt_setup_huk(void)
         der_data = NULL;
         if (ret == 0) {
             crt_pem_buffer[pem_len] = '\0';
-            printf("Loaded Certificate (PEM):\n%s\n", crt_pem_buffer);
+            printf("PSA: Certificate (PEM):\n%s\n", crt_pem_buffer);
         } else {
             printf("PEM conversion failed: %d\n", ret);
             goto error_cleanup;
@@ -147,8 +153,12 @@ void psa_mqtt_setup_huk(void)
             goto error_cleanup;
         }
 
-        status = psa_key_derivation_input_bytes(&op, PSA_KEY_DERIVATION_INPUT_INFO,
-                                                (const uint8_t*)"Avnet IoTConnect P256R1 Client v1", 41);
+        status = psa_key_derivation_input_bytes(
+            &op, 
+            PSA_KEY_DERIVATION_INPUT_INFO,
+            (const uint8_t*)KEY_DERIVATION_INPUT_DATA, 
+            strlen(KEY_DERIVATION_INPUT_DATA)
+        );
         if (status != PSA_SUCCESS) {
             psa_key_derivation_abort(&op);
             goto error_cleanup;
@@ -194,7 +204,7 @@ void psa_mqtt_setup_huk(void)
             printf("Failed to store cert in ITS slot 8: 0x%lx\n", (unsigned long)status);
             goto error_cleanup;
         }
-        printf("PSA_HUK: Certificate generated and stored in ITS slot 8\n");
+        printf("PSA_HUK: Certificate generated and stored in ITS slot %d\n", (int) CRT_DER_ITS_UID);
 
         /* Convert and print */
         size_t pem_len;
@@ -209,14 +219,13 @@ void psa_mqtt_setup_huk(void)
         der_data = NULL;
         if (ret == 0) {
             crt_pem_buffer[pem_len] = '\0';
-            printf("Generated Certificate (PEM):\n%s\n", crt_pem_buffer);
+            printf("Device Certificate:\n%s\n", crt_pem_buffer);
         } else {
             printf("PEM conversion failed: %d\n", ret);
             goto error_cleanup;
         }
     }
 
-    printf("PSA_HUK: Ready - volatile HUK-derived key + persistent cert\n");
     return;
 
 error_cleanup:
