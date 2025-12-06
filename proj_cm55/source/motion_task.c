@@ -222,7 +222,7 @@ static cy_rslt_t motion_sensor_update_orientation(void)
             /* Kit has an inverted portrait orientation */
             printf("Orientation = ORIENTATION_RIGHT_EDGE\r\n");
             payload->label_id = 5;
-            strcpy(payload->label, "rigt_edge");
+            strcpy(payload->label, "right_edge");
         }
         else
         {
