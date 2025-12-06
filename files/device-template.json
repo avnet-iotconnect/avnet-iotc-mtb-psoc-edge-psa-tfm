@@ -1,0 +1,65 @@
+{
+    "code": "pedgepsa",
+    "name": "pedgepsa",
+    "authType": 2,
+    "attributes": [
+        {
+            "name": "version",
+            "type": "STRING",
+            "description": "Version reported by the software",
+            "unit": null
+        },
+        {
+            "name": "random",
+            "type": "INTEGER",
+            "description": "A randomly generated integer",
+            "unit": null
+        },
+		{
+            "name": "event_id",
+            "type": "INTEGER",
+            "description": "Detected event numeric index",
+            "unit": null
+        },
+		{
+            "name": "event",
+            "type": "STRING",
+            "description": "Detected event or ML class name",
+            "unit": null
+        },
+		{
+            "name": "event_detected",
+            "type": "BOOLEAN",
+            "description": "Detected true when an actual event has been detected",
+            "unit": null
+        }
+    ],
+    "commands": [
+        {
+            "name": "board-user-led",
+            "command": "board-user-led",
+            "requiredParam": true,
+            "requiredAck": true,
+            "isOTACommand": false
+        },
+		{
+            "name": "set-reporting-interval",
+            "command": "set-reporting-interval",
+            "requiredParam": true,
+            "requiredAck": true,
+            "isOTACommand": false
+        }
+    ],
+    "messageVersion": "2.1",
+    "msgCode": "GMLS87M",
+    "greenGrass": "0",
+    "wireless": "0",
+    "properties": {
+        "description": null,
+        "dataFrequency": "60",
+        "fileSupport": false
+    },
+    "_meta": {
+        "version": "2.0"
+    }
+}

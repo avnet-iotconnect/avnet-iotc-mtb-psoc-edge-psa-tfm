@@ -7,7 +7,7 @@
 #
 ################################################################################
 # \copyright
-# Copyright 2023-2025, Cypress Semiconductor Corporation (an Infineon company)
+# $ Copyright 2022-2023 Cypress Semiconductor Corporation (an Infineon company)
 # SPDX-License-Identifier: Apache-2.0
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -67,6 +67,7 @@ CORE_NAME=CM33_0
 VCORE_ATTRS=SECURE
 
 #Configure this application to be loaded into flash/ram. 
+#Note:APPTYPE flash for secure project uses the linker for RRAM memory 
 APPTYPE=flash
 
 # By default the build system automatically looks in the Makefile's directory
@@ -78,6 +79,13 @@ SOURCES=
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
 INCLUDES=
+
+# Add additional defines to the build process (without a leading -D).
+DEFINES+=
+
+# Enable TF-M logging
+TFM_CONFIGURE_EXT_OPTIONS+= -DTFM_EXCEPTION_INFO_DUMP=ON -DPLATFORM_EXCEPTION_INFO=ON -DIFX_FAULTS_INFO_DUMP=ON -DTFM_SPM_LOG_LEVEL=TFM_SPM_LOG_LEVEL_DEBUG -DTFM_PARTITION_LOG_LEVEL=TFM_PARTITION_LOG_LEVEL_DEBUG
+TFM_CONFIGURE_EXT_OPTIONS+= -DCONFIG_TFM_HALT_ON_CORE_PANIC:BOOL=ON
 
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT+=
@@ -141,3 +149,10 @@ CY_GETLIBS_SHARED_PATH=../..
 CY_GETLIBS_SHARED_NAME=mtb_shared
 
 include $(CY_TOOLS_DIR)/make/start.mk
+
+BSP_PATH:=$(abspath $(join $(CURDIR)/,$(MTB_TOOLS__TARGET_DIR)))
+CYCFG_TIMESTAMP_PATH:=$(call TFM_PATH_MIXED,$(BSP_PATH)/config/generatedsource/cycfg.timestamp)
+$(CYCFG_TIMESTAMP_PATH): $(call TFM_PATH_MIXED,$(BSP_PATH)/config/design.modus)
+	@$(MTB_TOOLS__TOOLS_DIR)/$(CY_TOOL_device-configurator-cli_EXE) -b $(call TFM_PATH_MIXED,$(BSP_PATH)/config/design.modus)
+
+tfm-configure $(TFM_BUILD_DIR)/.tfm-configure: $(CYCFG_TIMESTAMP_PATH)

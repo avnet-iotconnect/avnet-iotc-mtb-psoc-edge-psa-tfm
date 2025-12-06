@@ -41,21 +41,23 @@
 /* Header file includes */
 #include "cybsp.h"
 #include "retarget_io_init.h"
-#include "mqtt_task.h"
+#include "app_task.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "cyabs_rtos.h"
 #include "cyabs_rtos_impl.h"
 #include "cy_time.h"
 #include "cycfg_peripherals.h"
+#include "ipc_communication.h"
+
+// for TFM - must init before scheduler starts
+#include "tfm_ns_interface.h"
+#include "tfm_hal_multi_core.h"
+#include "os_wrapper/common.h"
+
 /******************************************************************************
  * Macros
  ******************************************************************************/
-/* The timeout value in microsecond used to wait for core to be booted */
-#define CM55_BOOT_WAIT_TIME_US            (10U)
-/* App boot address for CM55 project */
-#define CM55_APP_BOOT_ADDR          (CYMEM_CM33_0_m55_nvm_START + \
-                                        CYBSP_MCUBOOT_HEADER_SIZE)
 /* Enabling or disabling a MCWDT requires a wait time of upto 2 CLK_LF cycles
  * to come into effect. This wait time value will depend on the actual CLK_LF
  * frequency set by the BSP.
@@ -70,9 +72,7 @@
  ******************************************************************************/
 /* LPTimer HAL object */
 static mtb_hal_lptimer_t lptimer_obj;
-
-/* RTC HAL object */
-static mtb_hal_rtc_t rtc_obj;
+typedef mtb_hal_rtc_t rtc_type;
 
 /*****************************************************************************
  * Function Definitions
@@ -169,32 +169,6 @@ static void setup_tickless_idle_timer(void)
     cyabs_rtos_set_lptimer(&lptimer_obj);
 }
 
-/*******************************************************************************
-* Function Name: setup_clib_support
-********************************************************************************
-* Summary:
-*    1. This function configures and initializes the Real-Time Clock (RTC).
-*    2. It then initializes the RTC HAL object to enable CLIB support library
-*       to work with the provided Real-Time Clock (RTC) module.
-*
-* Parameters:
-*  void
-*
-* Return:
-*  void
-*
-*******************************************************************************/
-static void setup_clib_support(void)
-{
-    /* RTC Initialization */
-    Cy_RTC_Init(&CYBSP_RTC_config);
-    Cy_RTC_SetDateAndTime(&CYBSP_RTC_config);
-
-    /* Initialize the ModusToolbox CLIB support library */
-    mtb_clib_support_init(&rtc_obj);
-}
-
-
 /******************************************************************************
  * Function Name: main
  ******************************************************************************
@@ -209,17 +183,21 @@ static void setup_clib_support(void)
  *  int
  *
  ******************************************************************************/
-
 int main(void)
 {
     cy_rslt_t result;
-
+    rtc_type obj;
+        
     /* Initialize the board support package. */
+    
     result = cybsp_init();
     CY_ASSERT(CY_RSLT_SUCCESS == result);
 
     /* To avoid compiler warnings. */
     CY_UNUSED_PARAMETER(result);
+
+    /* Enable global interrupts. */
+    __enable_irq();
 
     /* Setup the LPTimer instance for CM33 CPU. */
     setup_tickless_idle_timer();
@@ -227,26 +205,47 @@ int main(void)
     /* Initialize retarget-io middleware */
     init_retarget_io();
 
-    /* Setup CLIB support library. */
-    setup_clib_support();
+    /* Initialize rtc */
+    Cy_RTC_Init(&CYBSP_RTC_config);
+    Cy_RTC_SetDateAndTime(&CYBSP_RTC_config);
+    
+    /* Initialize the CLIB support library */
+    mtb_clib_support_init(&obj);
+
+    /* Initialize TF-M interface - MUST be done before scheduler starts */
+    result = tfm_ns_interface_init();
+    if(result != OS_WRAPPER_SUCCESS)
+    {
+        printf("tfm_ns_interface_init failed!\n");
+        CY_ASSERT(0);
+    }
+
+    /* Setup IPC communication for CM33 - after TF-M init to avoid IPC conflicts */
+    cm33_ipc_communication_setup();
 
     /* \x1b[2J\x1b[;H - ANSI ESC sequence to clear screen. */
     printf("\x1b[2J\x1b[;H");
     printf("===============================================================\n");
+    printf("PSOC Edge MCU: /IOTCONNECT Client\n");
+    printf("===============================================================\n");
 
-    printf("PSOC Edge MCU: Wi-Fi MQTT Client\n");
+    printf("CM33 /IOTCONNECT App Task Starting. Waiting for CM55 IPC to start...\n");
 
-    printf("===============================================================\n\n");
 
-    /* Enable CM55. CY_CORTEX_M55_APPL_ADDR must be updated if CM55 memory layout is changed. */
-    Cy_SysEnableCM55(MXCM55, CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
+    /* Cy_SysEnableCM55(MXCM55, CY_CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
+     * replaced with below:
+     * Use tfm_hal_boot_ns_cpu() which calls into secure world
+     * where it has permission to access power management registers.
+     * */
+    tfm_hal_boot_ns_cpu(CY_CM55_APP_BOOT_ADDR);
 
-    /* Enable global interrupts. */
-    __enable_irq();
+    /* DO NOT PRINT ANYTHING after this line until we sync. This should avoid partial lines in logs. */
 
-    /* Create the MQTT Client task. */
-    result = xTaskCreate(mqtt_client_task, "MQTT Client task", MQTT_CLIENT_TASK_STACK_SIZE,
-                NULL, MQTT_CLIENT_TASK_PRIORITY, NULL);
+    result = xTaskCreate(app_task, "IOTC APP task", APP_TASK_STACK_SIZE,
+                NULL, APP_TASK_PRIORITY, NULL);
+    if( pdPASS != result ) {
+		handle_app_error();
+	}
 
     if( pdPASS == result )
     {

@@ -6,21 +6,33 @@
 # Makefile for configuring the Cortex-M55 core project
 #
 ################################################################################
-# \copyright
-# Copyright 2024-2025, Cypress Semiconductor Corporation (an Infineon company)
-# SPDX-License-Identifier: Apache-2.0
+# (c) 2025, Infineon Technologies AG, or an affiliate of Infineon
+# Technologies AG. All rights reserved.
+# This software, associated documentation and materials ("Software") is
+# owned by Infineon Technologies AG or one of its affiliates ("Infineon")
+# and is protected by and subject to worldwide patent protection, worldwide
+# copyright laws, and international treaty provisions. Therefore, you may use
+# this Software only as provided in the license agreement accompanying the
+# software package from which you obtained this Software. If no license
+# agreement applies, then any use, reproduction, modification, translation, or
+# compilation of this Software is prohibited without the express written
+# permission of Infineon.
 # 
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-# 
-#     http://www.apache.org/licenses/LICENSE-2.0
-# 
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Disclaimer: UNLESS OTHERWISE EXPRESSLY AGREED WITH INFINEON, THIS SOFTWARE
+# IS PROVIDED AS-IS, WITH NO WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING, BUT NOT LIMITED TO, ALL WARRANTIES OF NON-INFRINGEMENT OF
+# THIRD-PARTY RIGHTS AND IMPLIED WARRANTIES SUCH AS WARRANTIES OF FITNESS FOR A
+# SPECIFIC USE/PURPOSE OR MERCHANTABILITY.
+# Infineon reserves the right to make changes to the Software without notice.
+# You are responsible for properly designing, programming, and testing the
+# functionality and safety of your intended application of the Software, as
+# well as complying with any legal requirements related to its use. Infineon
+# does not guarantee that the Software will be free from intrusion, data theft
+# or loss, or other breaches ("Security Breaches"), and Infineon shall have
+# no liability arising out of any Security Breaches. Unless otherwise
+# explicitly approved by Infineon, the Software may not be used in any
+# application where a failure of the Product or any consequences of the use
+# thereof can reasonably be expected to result in personal injury.
 ################################################################################
 
 include ../common.mk
@@ -29,6 +41,11 @@ include ../common.mk
 # Basic Configuration
 ################################################################################
 
+# model selection: moved to common.mk
+
+ifeq (,$(filter $(strip $(MODEL_SELECTION)),COUGH_MODEL ALARM_MODEL BABYCRY_MODEL DIRECTIONOFARRIVAL_MODEL FALLDETECTION_MODEL MOTION_SENSOR IDLE))
+    $(error Invalid MODEL_SELECTION "$(MODEL_SELECTION)" for TARGET=$(TARGET))
+endif
 
 # Name of application (used to derive name of final linked file).
 #
@@ -39,6 +56,16 @@ APPNAME=proj_cm55
 # If set to "true" or "1", display full command-lines when building.
 VERBOSE=
 
+# Neural Network Configuration. Options include
+#
+# float    -- floating point for the input data and weights
+# int8x8   -- 8-bit fixed-point for the input data and weights
+NN_TYPE=int8x8
+
+# Choose the inference engine
+# tflm      -- TensorFlow Lite for Microcontrollers inference engine with interpreter
+# tflm_less -- TensorFlow Lite for Microcontrollers inference engine interpreter-less
+NN_INFERENCE_ENGINE=tflm
 
 ################################################################################
 # Advanced Configuration
@@ -54,29 +81,146 @@ VERBOSE=
 # ... then code in directories named COMPONENT_foo and COMPONENT_bar will be
 # added to the build
 #
-COMPONENTS+=FREERTOS RTOS_AWARE  
+COMPONENTS+=FREERTOS RTOS_AWARE
 
 # Like COMPONENTS, but disable optional code that was enabled by default.
 DISABLE_COMPONENTS=
 
+# Set this application to run at the CM55
 CORE=CM55
 CORE_NAME=CM55_0
+NPU=U55
 
 # By default the build system automatically looks in the Makefile's directory
 # tree for source code and builds it. The SOURCES variable can be used to
 # manually add source code to the build process from a location not searched
 # by default, or otherwise not found by the build system.
-SOURCES+=
+SOURCES+=$(wildcard ../shared/source/COMPONENT_CM55/*.c)
+
+SEARCH+=../shared/retarget_io/
+
+# (should be) required for TF-M
+DEFINES+=TFM_MULTI_CORE_NS_OS
 
 # Like SOURCES, but for include directories. Value should be paths to
 # directories (without a leading -I).
-INCLUDES+=
+INCLUDES+=../shared/include
 
 # Add additional defines to the build process (without a leading -D).
 DEFINES+=CY_RETARGET_IO_CONVERT_LF_TO_CRLF
 
+# Add additional defines related to ARM Helium and DSP extensions
+DEFINES+=ARM_MATH_HELIUM ARM_MATH_DSP ARM_MATH_AUTOVECTORIZE
+
+
+# Add additional components related to MTB ML
+COMPONENTS+=U55
+
+# Add additional define/components to select the inference engine
+ifeq (tflm, $(NN_INFERENCE_ENGINE))
+COMPONENTS+=ML_TFLM
+DEFINES+=TF_LITE_STATIC_MEMORY
+endif
+
+# Add define to build code for CM55 and include additional files
+DEFINES+=CY_ML_MODEL_MEM=.cy_socmem_data
+DEFINES+=CY_ML_ARENA_MEM=.cy_socmem_data
+COMPONENTS+=CMSIS_DSP
+
+# Depending which Neural Network Type, add a specific DEFINE and COMPONENT
+ifeq (float, $(NN_TYPE))
+COMPONENTS+=ML_FLOAT32
+endif
+ifeq (int8x8, $(NN_TYPE))
+COMPONENTS+=ML_INT8x8
+endif
+
+INCLUDES+=$(SEARCH_cmsis)/COMPONENT_CMSIS_NN/Include
+
+INCLUDES+=./ready_models
+
+CY_IGNORE+=$(SEARCH_CMSIS-DSP)
+
+ifeq (COUGH_MODEL, $(MODEL_SELECTION))
+DEFINES+=COUGH_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/cough_lib_eval.a
+endif
+
+ifeq (BABYCRY_MODEL, $(MODEL_SELECTION))
+DEFINES+=BABYCRY_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/babycry_lib_eval.a
+endif
+
+ifeq (ALARM_MODEL, $(MODEL_SELECTION))
+DEFINES+=ALARM_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/alarm_siren_lib_eval.a
+endif
+
+ifeq (GESTURE_MODEL, $(MODEL_SELECTION))
+DEFINES+=GESTURE_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/gesture_lib_eval.a
+endif
+
+ifeq (FALLDETECTION_MODEL, $(MODEL_SELECTION))
+DEFINES+=FALLDETECTION_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/fall_lib_eval.a
+endif
+
+ifeq (DIRECTIONOFARRIVAL_MODEL, $(MODEL_SELECTION))
+DEFINES+=DIRECTIONOFARRIVAL_MODEL
+# Additional / custom libraries to link in to the application.
+LDLIBS+=./ready_models/CONFIG_$(CONFIG)/TOOLCHAIN_$(TOOLCHAIN)/doa_lib_eval.a
+endif
+
+ifeq (MOTION_SENSOR, $(MODEL_SELECTION))
+DEFINES+=MOTION_SENSOR
+endif
+
+ifeq (GESTURE_MODEL, $(MODEL_SELECTION))
+  CY_IGNORE += source/audio.c
+  CY_IGNORE += source/imu.c
+  CY_IGNORE += source/doa.c
+  CY_IGNORE += source/motion_detection.c
+else ifeq (FALLDETECTION_MODEL, $(MODEL_SELECTION))
+  CY_IGNORE += source/radar.c
+  CY_IGNORE += source/radar
+  CY_IGNORE += source/audio.c
+  CY_IGNORE += source/doa.c
+  CY_IGNORE += source/motion_detection.c
+else ifeq (MOTION_SENSOR, $(MODEL_SELECTION))
+  CY_IGNORE += source/radar.c
+  CY_IGNORE += source/radar
+  CY_IGNORE += source/audio.c
+  CY_IGNORE += source/doa.c
+  CY_IGNORE += source/imu.c
+else ifeq (DIRECTIONOFARRIVAL_MODEL, $(MODEL_SELECTION))
+  CY_IGNORE += source/radar.c
+  CY_IGNORE += source/radar
+  CY_IGNORE += source/audio.c
+  CY_IGNORE += source/imu.c
+  CY_IGNORE += source/motion_detection.c
+else ifneq (,$(filter $(MODEL_SELECTION), COUGH_MODEL ALARM_MODEL BABYCRY_MODEL))
+  CY_IGNORE += source/radar.c
+  CY_IGNORE += source/radar
+  CY_IGNORE += source/imu.c
+  CY_IGNORE += source/doa.c
+  CY_IGNORE += source/motion_detection.c
+else
+  CY_IGNORE += source/radar.c
+  CY_IGNORE += source/radar
+  CY_IGNORE += source/audio.c
+  CY_IGNORE += source/imu.c
+  CY_IGNORE += source/doa.c
+  CY_IGNORE += source/motion_detection.c
+endif
+
 # Select softfp or hardfp floating point. Default is softfp.
-VFP_SELECT+=
+VFP_SELECT+=hardfp
 
 # Additional / custom C compiler flags.
 #
