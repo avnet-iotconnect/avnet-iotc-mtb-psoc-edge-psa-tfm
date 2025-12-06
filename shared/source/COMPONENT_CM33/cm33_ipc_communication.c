@@ -1,5 +1,5 @@
 /*******************************************************************************
-* File Name        : main.c
+* File Name        : cm33_ipc_communication.c
 *
 * Description      : This source file contains the code for setting up IPC 
 *                    communication for CM33 CPU.
