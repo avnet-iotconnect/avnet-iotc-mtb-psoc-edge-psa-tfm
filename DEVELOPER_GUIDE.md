@@ -56,12 +56,17 @@ that explain how to install VS Code itself, the required VS Code Plugins and the
 - Launch ModusToolbox&trade; Dashboard. Select Target IDE `Microsoft Visual Studio` 
 from the dropdown on top-right and then click *Launch Project Creator*.
 - Select one of the supported boards from [README.md](README.md) and click *Next*.
+
+> [!WARNING]
+> On Windows, the combined path of *Application Root Path* and *New Application Name* 
+> below **must not** exceed 36 characters. For example, use C:\projects\avt-psa-root\avt-psa-app
+> where *C:\projects\avt-psa-root* is the application root and *avt-psa-app* is the application name.
+
 - For the Application(s) Root Path, specify or browse to a directory where the application will be created.
-It is preferred to use a short path due to Windows OS file path limits.
 - Ensure that the Target IDE is *Microsoft Visual Studio Code*.
 - Checkmark this repo's application by browsing Template Applications or searching for this application name. 
 We suggest searching for "Avnet" first to reduce the list.
-- It is recommended to override the New Application Name value to a shorter name.
+- Override the New Application Name value in the corresponding column in the table to a shorter name.
 - Click *Create* and close the Project Creator when the project is created successfully.
 - Open VS Code, and Select *File -> Open Workspace from File*, navigate to the location of the application that was just
 created, select the workspace file, and click *Open*.
