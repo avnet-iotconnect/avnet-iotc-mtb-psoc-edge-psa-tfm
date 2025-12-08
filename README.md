@@ -12,14 +12,14 @@ that utilizes PSA and TF-M.
 The project makes use of PSOC Edge PSA and TF-M implementation 
 by utilizing the factory-programmed immutable Hardware Unique Key (HUK),
 to derive a private key
-along with PSA Internal Trusted Storage (ITS) to store a geenrated certificate.
+along with PSA Internal Trusted Storage (ITS) to store a generated certificate.
 The credentials are used to securely authenticate the device to /IOTCONNECT.
 
 The project includes various DEEPCRAFT&trade; Ready Models which are chosen at compile time by 
-selecting the model in [common.mk](common.mk). Curretnly only the Fall Detection model is supported.
+selecting the model in [common.mk](common.mk). Currently only the Fall Detection model is supported.
 Additionally, a non-AI motion senser-based board orientation algorithm is provides.
 
-Pre-trained models that are ready for production, referred to as "Ready Models," can be found on the [Imagimob Ready Model Landing Page](https://www.imagimob.com/ready-models). These models, when deployed on a device, are intended specifically for testing purposes and come with a limited number of inferences.
+Pre-trained models that are ready for production, referred to as "Ready Models," can be found on the [DEEPCRAFT Ready Model Landing Page](https://www.imagimob.com/ready-models). These models, when deployed on a device, are intended specifically for testing purposes and come with a limited number of inferences.
 
 This project has a four project structure: Bootloader, CM33 secure, CM33 non-secure, and CM55 projects. The bootloader launches the CM33 secure project from a fixed location in the external flash, which then configures the protection settings and launches the CM33 non-secure application. Additionally, CM33 non-secure application enables CM55 CPU and launches the CM55 application.
 
@@ -73,7 +73,7 @@ For general instructions on how to set up and run infineon projects project, ref
 - After a few seconds, the device will connect to /IOTCONNECT, and begin sending telemetry packets similar to the example below 
 depending on the application version and the model selected (first letter in the version prefix):
 
-```json
+```
 >: {"d":[{"d":{"version":"M-1.0.0","random":41,"event_id":0,"event":"up","event_detected":false}}]}
 ```
 - 

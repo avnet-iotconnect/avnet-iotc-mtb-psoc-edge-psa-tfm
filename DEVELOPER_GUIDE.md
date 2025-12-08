@@ -1,6 +1,6 @@
 ## Introduction
 
-This document demonstrates the steps of setting up the Infineon  PSOC™ Edge MCU boards
+This document demonstrates the steps of setting up the Infineon PSOC™ Edge MCU boards
 for connecting to Avnet's /IOTCONNECT Platform with device-generated certificates. Supported boards are listed in 
 the [README.md](README.md).
 
@@ -70,11 +70,19 @@ If so, click *Yes, I trust the authors*.
 
 - Apply a fix to secure-sockets by manually editing
 *mtb_shared/secure-sockets/.../source/COMPONENT_MBEDTLS/cy_tls.c* around line 1667 
-and surround this code with *if(tls_identity)*:
+and surround the code section below with *if(tls_identity)*:
 
 ```c
+...
+    }
+    else
+    {
+        load_cert_key_from_ram = CY_TLS_LOAD_CERT_FROM_RAM;
+    }
+#else
+    /* */
     /* IOTC_FIX: Only setup opaque key if tls_identity is provided (mTLS case).
-     * For server-only TLS (no client cert), tls_identity is NULL and we skip this. */
+     * For server-only TLS (no client cert), tls_identity is NULL and we skip this. */     
     if(tls_identity)
     {
         mbedtls_pk_init( &tls_identity->private_key );
@@ -88,6 +96,15 @@ and surround this code with *if(tls_identity)*:
             goto cleanup;
         }
     }
+    if(ret != 0)
+    {
+        tls_cy_log_msg(CYLF_MIDDLEWARE, CY_LOG_ERR, "Failed to setup opaque key context 0x%x\r\n", ret);
+        result = CY_RSLT_MODULE_TLS_ERROR;
+        goto cleanup;
+    }
+#endif /* CY_SECURE_SOCKETS_PKCS_SUPPORT */
+#endif /* CY_TFM_PSA_SUPPORTED */
+...    
 ```
 
 - Set your Wi-Fi credentials at [proj_cm33_ns/wifi_config.h](proj_cm33_ns/wifi_config.h).
