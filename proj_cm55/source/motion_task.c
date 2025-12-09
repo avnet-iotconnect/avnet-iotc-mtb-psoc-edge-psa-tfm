@@ -201,7 +201,7 @@ static cy_rslt_t motion_sensor_update_orientation(void)
             /* Kit has an inverted landscape orientation */
             printf("Orientation = ORIENTATION_BOTTOM_EDGE\r\n");
             payload->label_id = 3;
-            strcpy(payload->label, "bottom_edge");
+            strcpy(payload->label, "bottom");
             
         }
         else
@@ -209,7 +209,7 @@ static cy_rslt_t motion_sensor_update_orientation(void)
             /* Kit has landscape orientation */
             printf("Orientation = ORIENTATION_TOP_EDGE\r\n");
             payload->label_id = 2;
-            strcpy(payload->label, "top_edge");
+            strcpy(payload->label, "top");
         }
     }
     /* X axis (parallel with longer edge of board) is most aligned with
