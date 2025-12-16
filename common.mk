@@ -79,7 +79,7 @@ endif
 # DIRECTIONOFARRIVAL_MODEL
 # FALLDETECTION_MODEL
 # GESTURE_MODEL (Reserved for future boards)
-# MOTION_SENSOR (No AI, just ure IMU)
+# MOTION_SENSOR (No ML, just pure IMU code)
 # IDLE (For testing only - will send dummy IPC messages to CM33)
 
 MODEL_SELECTION = MOTION_SENSOR

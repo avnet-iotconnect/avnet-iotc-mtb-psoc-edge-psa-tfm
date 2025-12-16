@@ -190,6 +190,9 @@ static cy_rslt_t publish_telemetry(void) {
 void app_task(void *pvParameters) {
     (void) pvParameters;
 
+    extern int usb_configurator_main(void);
+    // usb_configurator_main();
+
     // DO NOT print anything before we receive a message to avoice garbled output
     // we want to wait for CM33 to start receiving messages to prevent halts and errors below.
     while (!cm33_ipc_has_received_message()) {

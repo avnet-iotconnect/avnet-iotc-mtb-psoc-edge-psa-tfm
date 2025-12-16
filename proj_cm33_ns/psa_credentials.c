@@ -1,7 +1,6 @@
-/* psa_huk.c - HUK-derived volatile key + ITS-stored deterministic certificate
- * Decision based ONLY on certificate presence in ITS slot 8
- * Uses original gencert.c as-is
- * SPDX-License-Identifier: MIT
+/* SPDX-License-Identifier: MIT
+ * Copyright (C) 2025 Avnet
+ * Authors: Nikola Markovic <nikola.markovic@avnet.com>, Shu Liu <shu.liu@avnet.com> et al.
  */
 
 #include <stdio.h>

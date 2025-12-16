@@ -241,6 +241,13 @@ int main(void)
 
     /* DO NOT PRINT ANYTHING after this line until we sync. This should avoid partial lines in logs. */
 
+    
+    extern void usb_cdc_test(void * param);
+    #if 0
+    xTaskCreate(usb_cdc_test, "usb_cdc_test", APP_TASK_STACK_SIZE,
+                NULL, APP_TASK_PRIORITY, NULL);
+    #endif
+
     result = xTaskCreate(app_task, "IOTC APP task", APP_TASK_STACK_SIZE,
                 NULL, APP_TASK_PRIORITY, NULL);
     if( pdPASS != result ) {
