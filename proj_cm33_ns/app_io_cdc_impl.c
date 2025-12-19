@@ -1,12 +1,9 @@
-/*******************************************************************************
-* File Name:   main.c
-*
-* Description: This is the source code for the USB Device CDC echo Example
-*              for non-secure application in the CM33 CPU.
-*
-* Related Document: See README.md
-*
-*
+/* SPDX-License-Identifier: MIT
+ * Copyright (C) 2025 Avnet
+ * Authors: Nikola Markovic <nikola.markovic@avnet.com>, Shu Liu <shu.liu@avnet.com> et al.
+ */
+
+/*
 ********************************************************************************
 * Copyright 2023-2025, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
@@ -172,10 +169,9 @@ int app_io_read_lines(char * buffer, size_t buffer_len, bool until_eod) {
     
     vTaskDelay(pdMS_TO_TICKS(10));
     
-    while (USB_STAT_CONFIGURED != (USBD_GetState() & (USB_STAT_CONFIGURED | USB_STAT_SUSPENDED)))
-    {
+    while (USB_STAT_CONFIGURED != (USBD_GetState() & (USB_STAT_CONFIGURED | USB_STAT_SUSPENDED))) {
         Cy_GPIO_Inv(CYBSP_USER_LED_PORT, CYBSP_USER_LED_PIN);
-        vTaskDelay(pdMS_TO_TICKS(200));
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 
     Cy_GPIO_Write(CYBSP_USER_LED_PORT, CYBSP_USER_LED_PIN, GPIO_HIGH);
@@ -211,6 +207,7 @@ int app_io_read_lines(char * buffer, size_t buffer_len, bool until_eod) {
                 }
             }
         }
+        
         total_received += num_bytes_received;
         if (found_terminator) {
             break;
@@ -263,6 +260,9 @@ void usb_cdc_test(void * param) {
     app_io_read_lines(read_buffer, sizeof(read_buffer), true);    
     app_io_write_str_crlf(""); // most terminals will just have CR in the input, so add a newline
     printf("Received from USB CDC until EOD: %s\n", read_buffer);
+
+
+
     for(;;) {
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
