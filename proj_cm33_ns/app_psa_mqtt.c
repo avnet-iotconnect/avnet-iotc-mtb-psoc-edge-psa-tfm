@@ -19,6 +19,8 @@
 
 #include "iotconnect.h"
 
+#include "app_psa_mqtt.h"
+
 /* Configuration */
 #define HUK_KEY_ID          ((psa_key_id_t)0x7FFF0000U)   // Factory test key - die-unique, always accessible
 #define CRT_DER_ITS_UID     (8U)                          // New ITS slot for certificate
@@ -48,7 +50,7 @@ extern int generate_selfsigned_cert_psa(mbedtls_pk_context *key,
                                         size_t der_buffer_len);
 
 /* Setup PSA key and certificate for MQTT */
-void psa_mqtt_setup_huk(void)
+void app_psa_mqtt_setup_huk(void)
 {
     psa_status_t status;
     crt_der_data_t* der_data = NULL;
@@ -194,12 +196,16 @@ error_cleanup:
     if (der_data) free(der_data);
     key_id = PSA_KEY_ID_NULL;
     // Trnasient errors could cause real problems here, 
-    // Probably not safe to delete the cert here:
+    // Probably not safe to delete the key here:
     // psa_its_remove(CRT_DER_ITS_UID); 
 }
 
+const char* app_psa_mqtt_get_certificate(void) {
+    return crt_pem_buffer;
+}
+
 /* Configure security_info with PSA cert and opaque key */
-void setup_iotconnect_sdk_credentials(IotConnectClientConfig* config)
+void app_psa_mqtt_setup_sdk_credentials(IotConnectClientConfig* config)
 {
     if (!config) {
         printf("Error: PSA: config is null!\n");

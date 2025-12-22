@@ -32,4 +32,7 @@ void app_io_write_str_crlf(const char* data);
 // Returns number of bytes read. (no error condition defined as of now)
 int app_io_read_lines(char * buffer, size_t buffer_len, bool until_eod);
 
+void app_io_start_password_masking(void);
+void app_io_stop_password_masking(void);
+
 #endif

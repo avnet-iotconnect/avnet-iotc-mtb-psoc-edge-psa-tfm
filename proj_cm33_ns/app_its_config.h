@@ -8,20 +8,8 @@
 #include <stdbool.h>
 #include "iotconnect.h"
 
-#ifndef DEVICE_CONFIG_ITS_UID
-#define DEVICE_CONFIG_ITS_UID    (0x1001U)
-#endif
-
-#ifndef APP_ITS_CONFIG_MAX_INPUT_LEN
-#define APP_ITS_CONFIG_MAX_INPUT_LEN    (512U)
-#endif
-
-#ifndef APP_ITS_CONFIG_TASK_PRIORITY
-#define APP_ITS_CONFIG_TASK_PRIORITY    (2U)
-#endif
-
-#ifndef APP_ITS_CONFIG_TASK_STACK_SIZE
-#define APP_ITS_CONFIG_TASK_STACK_SIZE  (1024U * 4U + APP_ITS_CONFIG_MAX_INPUT_LEN) // input buff will be on stack
+#ifndef APP_DEVICE_CONFIG_ITS_UID
+#define APP_DEVICE_CONFIG_ITS_UID    (7U)
 #endif
 
 // NOTE: String values will have +1 for null terminator in config data

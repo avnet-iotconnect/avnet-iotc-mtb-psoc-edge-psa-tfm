@@ -19,7 +19,8 @@
 #include "iotconnect.h"
 #include "iotc_mtb_time.h"
 
-#include "psa_credentials.h"
+#include "app_psa_mqtt.h"
+#include "app_its_config.h"
 #include "app_config.h"
 
 
@@ -190,9 +191,6 @@ static cy_rslt_t publish_telemetry(void) {
 void app_task(void *pvParameters) {
     (void) pvParameters;
 
-    extern int usb_configurator_main(void);
-    // usb_configurator_main();
-
     // DO NOT print anything before we receive a message to avoice garbled output
     // we want to wait for CM33 to start receiving messages to prevent halts and errors below.
     while (!cm33_ipc_has_received_message()) {
@@ -212,20 +210,18 @@ void app_task(void *pvParameters) {
         printf("Generated device unique ID (DUID) is: %s\n", iotc_duid);
     }
 
-    psa_mqtt_setup_huk();
-
     IotConnectClientConfig config;
     iotconnect_sdk_init_config(&config);
-    config.connection_type = IOTCONNECT_CONNECTION_TYPE;
-    config.cpid = IOTCONNECT_CPID;
-    config.env =  IOTCONNECT_ENV;
-    config.duid = iotc_duid;
+    config.connection_type = app_its_config_get_platform(IOTCONNECT_CONNECTION_TYPE);
+    config.cpid = app_its_config_get_cpid(IOTCONNECT_CPID);
+    config.env =  app_its_config_get_env(IOTCONNECT_ENV);
+    config.duid = app_its_config_get_duid(iotc_duid);
     config.qos = 1;
     config.verbose = true;
     config.callbacks.status_cb = on_connection_status;
     config.callbacks.cmd_cb = on_command;
     config.callbacks.ota_cb = on_ota;
-    setup_iotconnect_sdk_credentials(&config);
+    app_psa_mqtt_setup_sdk_credentials(&config);
 
 
     const char * conn_type_str = "(UNKNOWN)";

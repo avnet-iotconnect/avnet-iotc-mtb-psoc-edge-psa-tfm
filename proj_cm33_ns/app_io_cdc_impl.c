@@ -38,6 +38,9 @@
 *******************************************************************************/
 
 #include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 #include "cybsp.h"
 #include "mtb_hal.h"
 
@@ -86,6 +89,7 @@ static const USB_DEVICE_INFO usb_device_info = {
 
 // Handle for the CDC class isntance that is used in all calls
 static USB_CDC_HANDLE usb_cdc_handle;
+static bool is_password_masking_enabled = false;
 
 /* ****************************************************************************** */
 
@@ -122,13 +126,33 @@ static void usb_add_cdc(void)
     usb_cdc_handle = USBD_CDC_Add(&init_data);
 }
 
+void app_io_start_password_masking(void) {
+    is_password_masking_enabled = true;
+}
+void app_io_stop_password_masking(void) {
+    is_password_masking_enabled = false;
+}
+
+
 void app_io_write_data(const char* data, size_t data_len) {
     size_t total_written = 0;
     int result;
 
     while (total_written < data_len) {
-        result = USBD_CDC_Write(usb_cdc_handle, data + total_written, data_len - total_written, 0);
-            printf("Chunk result=%d\n", result);
+        if (is_password_masking_enabled) {
+            // For each character, write a '*' instead
+            char ch = data[total_written];
+            if (ch == '\r' || ch == '\n') {
+                // do not mask newline characters
+                result = USBD_CDC_Write(usb_cdc_handle, &ch, 1, 0);
+            } else {
+                char asterisk = '*';
+                result = USBD_CDC_Write(usb_cdc_handle, &asterisk, 1, 0);
+            }
+        } else {
+            result = USBD_CDC_Write(usb_cdc_handle, data + total_written, data_len - total_written, 0);
+        }
+        
         if (result < 0) {
             // Handle error (e.g., log or break)
             break;

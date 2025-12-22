@@ -32,7 +32,7 @@ bool app_its_config_is_valid(void) {
     return valid;
 }
 
-static int app_its_config_set_value(const char* name, char* target, const char* value, size_t target_max_len) {
+static int app_its_config_set_value(const char* name, char* target, const char* value, size_t target_max_len) {    
     if (!value){
         printf("ERROR: APP ITS: Invalid value for %s\n", name);
         return IOTCL_ERR_BAD_VALUE;
@@ -43,10 +43,12 @@ static int app_its_config_set_value(const char* name, char* target, const char* 
         return IOTCL_ERR_BAD_VALUE;
     }
     strcpy(target, value);
+    app_its_data.version = APP_DATA_VERSION; // someone is setting a value, mark data as valid so that it can be retrieved
     return IOTCL_SUCCESS;
 }
 
-int app_its_set_platform(IotConnectConnectionType platform) {
+int app_its_config_set_platform(IotConnectConnectionType platform) {
+    app_its_data.version = APP_DATA_VERSION; // someone is setting a value, mark data as valid so that it can be retrieved
     app_its_data.platform = (int32_t) platform;
     return IOTCL_SUCCESS;
 }
@@ -54,9 +56,11 @@ int app_its_set_platform(IotConnectConnectionType platform) {
 int app_its_config_set_platform_as_string(const char* platform_str) {
     if (strcmp(platform_str, IOTCL_PF_AWS_STR) == 0) {
         app_its_data.platform = (int32_t) IOTC_CT_AWS;
+        app_its_data.version = APP_DATA_VERSION; // someone is setting a value, mark data as valid so that it can be retrieved
         return IOTCL_SUCCESS;
     } else if (strcmp(platform_str, IOTCL_PF_AZURE_STR) == 0) {
         app_its_data.platform = (int32_t) IOTC_CT_AZURE;
+        app_its_data.version = APP_DATA_VERSION; // someone is setting a value, mark data as valid so that it can be retrieved
         return IOTCL_SUCCESS;
     } else {
         printf("ERROR: APP ITS: Invalid platform string: %s\n", platform_str);
@@ -141,9 +145,9 @@ int app_its_save_config_data(void) {
 
     app_its_data.version = APP_DATA_VERSION;
 
-    status = psa_its_set(DEVICE_CONFIG_ITS_UID, sizeof(device_config_data_t), &app_its_data, PSA_STORAGE_FLAG_NONE);
+    status = psa_its_set(APP_DEVICE_CONFIG_ITS_UID, sizeof(device_config_data_t), &app_its_data, PSA_STORAGE_FLAG_NONE);
     if (status != PSA_SUCCESS) {
-        printf("Failed to store device config in ITS slot %d: %d\n", (int) DEVICE_CONFIG_ITS_UID, (int)status);
+        printf("Failed to store device config in ITS slot %d: %d\n", (int) APP_DEVICE_CONFIG_ITS_UID, (int)status);
         return IOTCL_ERR_FAILED;
     }
     return IOTCL_SUCCESS;
@@ -153,14 +157,14 @@ int app_its_config_init(void) {
     psa_status_t status;
     size_t get_size = 0;
 
-    status = psa_its_get(DEVICE_CONFIG_ITS_UID, 0, sizeof(device_config_data_t), &app_its_data, &get_size);
+    status = psa_its_get(APP_DEVICE_CONFIG_ITS_UID, 0, sizeof(device_config_data_t), &app_its_data, &get_size);
 
     if (status == PSA_SUCCESS && get_size == sizeof(device_config_data_t) &&
         app_its_data.version == APP_DATA_VERSION) {
-        printf("ITS: Device configuration found in ITS slot %d\n", (int) DEVICE_CONFIG_ITS_UID);
+        printf("ITS: Device configuration found in ITS slot %d\n", (int) APP_DEVICE_CONFIG_ITS_UID);
         return IOTCL_SUCCESS;
     } else {
-        printf("ITS: No valid device configuration found in ITS slot %d\n", (int) DEVICE_CONFIG_ITS_UID);
+        printf("ITS: No valid device configuration found in ITS slot %d\n", (int) APP_DEVICE_CONFIG_ITS_UID);
         return IOTCL_ERR_CONFIG_MISSING;
     }
 }
@@ -170,10 +174,10 @@ void app_its_config_clear(void) {
 
     memset(&app_its_data, 0, sizeof(app_its_data));    
 
-    status = psa_its_remove(DEVICE_CONFIG_ITS_UID);
+    status = psa_its_remove(APP_DEVICE_CONFIG_ITS_UID);
 
     if (status != PSA_SUCCESS && status != PSA_ERROR_DOES_NOT_EXIST) {
-        printf("ERROR: Failed to clear device config in ITS slot %d: %d\n", (int) DEVICE_CONFIG_ITS_UID, (int)status);
+        printf("ERROR: Failed to clear device config in ITS slot %d: %d\n", (int) APP_DEVICE_CONFIG_ITS_UID, (int)status);
         return;
     }
 }
