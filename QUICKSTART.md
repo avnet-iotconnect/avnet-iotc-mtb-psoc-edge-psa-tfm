@@ -55,7 +55,8 @@ The two USB-C ports are used for different purposes:
 > The Programmer application version will not match the version listed above. 
 > The programmer GUI has its own version and will likely be shown as 5.7.
 >
-* Click the **Open** icon in the toolbar and select the *avnet-iotc-mtb-psoc-edge-psa-tfm.hex*, then click the **Open** button in the dialog.
+* Click the **Open** icon in the toolbar and select the extracted *avnet-iotc-mtb-psoc-edge-psa-tfm.hex* from the zip file
+, then click the **Open** button in the dialog.
 * In the **Programmer** pulldown, Select *KitProg3 CMSIS-DAP-BULK-XXXXXXXXXX*.
 * In the **Board** pulldown, Select *KIT_PSE84_EVAL*.
 * Click the **Connect** button on the toolbar. The programmer should connect to the board.
