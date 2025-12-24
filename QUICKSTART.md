@@ -51,10 +51,11 @@ The two USB-C ports are used for different purposes:
   
 * Connect the USB cable to the **KITPROG3 USB** port on the board.
 * Run the ModusToolbox Programmer application. On Windows you can use the *Search* feature in the taskbar.
+
 > [!NOTE]
 > The Programmer application version will not match the version listed above. 
 > The programmer GUI has its own version and will likely be shown as 5.7.
->
+
 * Click the **Open** icon in the toolbar and select the extracted *avnet-iotc-mtb-psoc-edge-psa-tfm.hex* from the zip file
 , then click the **Open** button in the dialog.
 * In the **Programmer** pulldown, Select *KitProg3 CMSIS-DAP-BULK-XXXXXXXXXX*.
