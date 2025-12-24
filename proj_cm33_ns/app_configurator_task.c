@@ -210,24 +210,22 @@ void app_configurator_task(void * param) {
     }
 
     app_io_write_str_crlf("");
-    app_io_write_str_crlf("Device configuration complete. Resetting device...");
-    app_io_write_str_crlf("");
-    printf("\n");
-    printf("Device configuration complete. Resetting device..."); // const string re-use \n after
+    app_io_write_str_crlf("Device configuration complete.");
+    printf("Device configuration complete."); // const string re-use \n after
     printf("\n");
     vTaskDelay(pdMS_TO_TICKS(2000));
 
-    // NOTE: NVIC_SystemReset() does not work, as it is not allowed in TF-M NS context.
-    enum tfm_platform_err_t result = tfm_platform_system_reset(); // unclear here on return type
-    if (result != TFM_PLATFORM_ERR_SUCCESS) {
-        app_io_write_str_crlf("ERROR: Failed to reset device. Please reset manually.");
-        printf("ERROR: Failed to reset device. Error was: %d.\n", (int) result);
-    }
-    
-    if (!had_existing_config) {
-        printf("The board will now reset to apply the new configuration.\n");
+    if (had_existing_config) {
+        app_io_write_str_crlf("The board will now reset to apply the new configuration.");
+        printf("The board will now reset to apply the new configuration.");
+        printf("\n");
         vTaskDelay(pdMS_TO_TICKS(2000));
-        tfm_platform_system_reset();
+        // NOTE: NVIC_SystemReset() does not work, as it is not allowed in TF-M NS context.
+        enum tfm_platform_err_t result = tfm_platform_system_reset(); // unclear here on return type
+        if (result != TFM_PLATFORM_ERR_SUCCESS) {
+            app_io_write_str_crlf("ERROR: Failed to reset device. Please reset the board manually.");
+            printf("ERROR: Failed to reset device. Error was: %d.\n", (int) result);
+        }
     }
 
     s_configurator_in_progress = false;

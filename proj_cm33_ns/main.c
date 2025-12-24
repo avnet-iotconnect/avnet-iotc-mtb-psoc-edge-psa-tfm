@@ -207,7 +207,7 @@ int main(void)
     setup_tickless_idle_timer();
 
     /* Initialize retarget-io middleware */
-    init_retarget_io();
+    init_retarget_io(); // This will route to tfm
 
     /* Initialize rtc */
     Cy_RTC_Init(&CYBSP_RTC_config);
@@ -244,8 +244,6 @@ int main(void)
      * where it has permission to access power management registers.
      * */
     tfm_hal_boot_ns_cpu(CY_CM55_APP_BOOT_ADDR);
-
-    /* DO NOT PRINT ANYTHING after this line until we sync. This should avoid partial lines in logs. */    
 
     app_its_config_init();
 

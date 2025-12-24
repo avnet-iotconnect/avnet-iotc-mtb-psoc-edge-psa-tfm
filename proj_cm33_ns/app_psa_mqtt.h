@@ -8,6 +8,11 @@
 
 #include "iotconnect.h"
 
+// Ensure this does not conflict with APP_DEVICE_CONFIG_ITS_UID
+#ifndef APP_PSA_CERT_ITS_UID
+#define APP_PSA_CERT_ITS_UID (8U)
+#endif
+
 // call this early to setup HUK-based key and derived cert
 void app_psa_mqtt_setup_huk(void); 
 

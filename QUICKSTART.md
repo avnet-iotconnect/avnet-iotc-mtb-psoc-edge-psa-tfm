@@ -5,32 +5,34 @@ Infineon PSOC™ Edge E84 Evaluation Kit (KIT_PSE84_EVAL) MCU board
 for connecting to Avnet's /IOTCONNECT Platform with device-generated certificates
 while using the pre-built firmware.
 
-If you wish to experience the development enviroment and build the formware
+If you wish to experience the development environment and build the formware
 see the [Developer Guide](DEVELOPER_GUIDE.md).
 
 ## Prerequisites
 * A USB-C Cable. The board package will contain a USB-C to USB-A cable.
-* WiFi Network.
+* A Wi-Fi Network.
 * A registered [myInfineon Account](https://www.infineon.com/sec/login)
-* A serial terminal application such as [Tera Term](https://ttssh2.osdn.jp/index.html.en) or a browser-based application like [Google Chrome Labs Serial Terminal](https://googlechromelabs.github.io/serial-terminal/). Tera Term can be installed by launching PowerShell and executing:
+* A serial terminal application such as [Tera Term](https://ttssh2.osdn.jp/index.html.en) or a browser-based application like [Google Chrome Labs Serial Terminal](https://googlechromelabs.github.io/serial-terminal/).
+Tera Term can be installed by launching PowerShell and executing:
 
 ```powershell
 winget install -e --id TeraTermProject.teraterm
 ```
 
 ## Hardware Setup
-* See the kit user guide to ensure that the board is configured correctly.
-* If using the EVK board, ensure the following jumper and pin configuration on board.
-  * BOOT SW must be in the LOW/OFF position. NOTE: This is the default configuration and different from most other Avent projects.
+
+* Ensure the following jumper and pin configuration on board.
+  * BOOT SW must be in the LOW/OFF position. NOTE: This is the default configuration for a shipped board, but different from most other Avnet projects.
   * J20 and J21 must be in the tristate/not connected (NC) position (these should be default)
 * Identify the two debug USB port for your board from the board's user manual:
-
+  
 ![USB Ports](images/e84-evk-usb.jpg)
 
-* The board can be powerd with either of the two ports that are marked arked on the image above. The two USB-C ports are used for different purposes:
+* The board can be powered with either of the two ports that are marked on the image above.
+The two USB-C ports are used for different purposes:
   * The **KITPROG3 USB** port - *Cypress Semiconductor KitProg3 CMSIS-DAP* - used for flashing, debugging and application log messages.
   * The **DEVICE USB** port - *Infineon Technologies Avnet CDC Configurator* - used for user interaction and runtime board configuration.
-* When connecting a Serial Terminal program for either of the two ports, configure the configure the connection as shown below:
+* When connecting a Serial Terminal program to either of the two ports, configure the connection as shown below:
   * Port: (Select the desired COM port)
   * Speed: `115200`
   * Data: `8 bits`
@@ -45,9 +47,7 @@ winget install -e --id TeraTermProject.teraterm
 
 ## Flashing The Firmware
 
-
-
-* Download the firmware from [TBD](TBD). Unzip the file to a location of your choosing.
+* Download the [avnet-iotc-mtb-psoc-edge-psa-tfm-v1.1.0.zip](https://us-east-1.console.aws.amazon.com/s3/object/downloads.iotconnect.io?region=us-east-1&prefix=partners/infineon/demos/avnet-iotc-mtb-psoc-edge-psa-tfm-v1.1.0.zip). Unzip the file to a location of your choosing.
   
 * Connect the USB cable to the **KITPROG3 USB** port on the board.
 * Run the ModusToolbox Programmer application. On Windows you can use the *Search* feature in the taskbar.
@@ -55,7 +55,7 @@ winget install -e --id TeraTermProject.teraterm
 > The Programmer application version will not match the version listed above. 
 > The programmer GUI has its own version and will likely be shown as 5.7.
 >
-* Click the **Open** icon in the toolbar and select the *avnet-iotc-mtb-psoc-edge-psa-tfm.hex*, then click the *Open* button in the dialog.
+* Click the **Open** icon in the toolbar and select the *avnet-iotc-mtb-psoc-edge-psa-tfm.hex*, then click the **Open** button in the dialog.
 * In the **Programmer** pulldown, Select *KitProg3 CMSIS-DAP-BULK-XXXXXXXXXX*.
 * In the **Board** pulldown, Select *KIT_PSE84_EVAL*.
 * Click the **Connect** button on the toolbar. The programmer should connect to the board.
@@ -69,7 +69,7 @@ winget install -e --id TeraTermProject.teraterm
 * Disconnect the **KITPROG3 USB** port from the board.
 * Connect the board's **DEVICE USB** (see the picture above) USB-C port to your PC, 
 run a terminal program and connect it to this port.
-* Press the ENTER key on your keyboard to trigger the welcome message.
+* Press the ENTER key on your keyboard into the terminal window to trigger the welcome message.
 * If you do not see the welcome message after pressing the ENTER key in the terminal
 , try resetting the board and re-connecting your terminal software.
 * The welcome message will show your device's generated certificate
@@ -124,7 +124,7 @@ Login to the platform by navigating to [console.iotconnect.io](https://console.i
 
 An /IOTCONNECT *Device Template* will need to be created or imported.
 * Download the premade [device-template.json](files/device-template.json) 
-(Open the link then click the *Download Raw File* icon on the right).
+(Open the link first, then click the **Download Raw File** icon on the right).
 * Import the template into your /IOTCONNECT instance:  [Importing a Device Template](https://github.com/avnet-iotconnect/avnet-iotconnect.github.io/blob/main/documentation/iotconnect/import_device_template.md) guide  
 > **Note:**  
 > For more information on [Template Management](https://docs.iotconnect.io/iotconnect/concepts/cloud-template/) 
@@ -137,17 +137,17 @@ In this step, we will create a **Device** associated with the previously importe
 * In the sidebar, navigate to Devices->Device page and at the top-right, click **Create Device**. 
 See [this short guide](https://github.com/avnet-iotconnect/avnet-iotconnect.github.io/blob/main/documentation/iotconnect/create_new_device.md)
 for detailed navigation steps.  
-* Enter a **Unique ID** (also called a **DUID**) of your choosing,  
- or the unique ID suggested by the Device Configurator above like *pedge-psa-3301061b*.
+* Enter a **Unique ID** (also called a **DUID**) of your choosing, 
+or the unique ID suggested by the Device Configurator above like *pedge-psa-3301061b*.
 * For simplicity, in the **Device Name** enter the same **Unique ID**. 
 * Select the **Entity** to associate the device (For new accounts, there is only one option).  
-* Select the previously imported template *edgepsa*.
+* Select the previously imported template *pedgepsa*.
 * Under **Device Certificate** select **Use my certificate**.
 * Copy and Paste the device certificate printed on the Device Configurator terminal above, including the BEGIN and END lines
 into the **Certificate Text** field.
-* Click **Save & View**
+* Click **Save & View**.
 * Either copy (click the *Copy* icon on the right) or download the **Device Configuration Information** 
-by clicking the icon in the upper right of the device page  
+by clicking the icon in the upper right of the device *Info* panel page.  
 ![icon-device-configuration-information.png](https://raw.githubusercontent.com/avnet-iotconnect/avnet-iotconnect.github.io/66a9479e87d1b1b44f6ad3f33d59d63737cbb65c/documentation/iotconnect/media/icon-device-configuration-information.png).
 
 

@@ -5,9 +5,9 @@ for connecting to Avnet's /IOTCONNECT Platform with device-generated certificate
 the [README.md](README.md).
 
 ## Prerequisites
-* PC with Windows. The project is tested with Windows 10, though the setup should work with Linux or Mac as well.
-* USB-A to USB-C data cable
-* 2.4GHz WiFi Network
+* A USB-C Cable. The board package will contain a USB-C to USB-A cable.
+* A Wi-Fi Network.
+* A registered [myInfineon Account](https://www.infineon.com/sec/login)
 * A serial terminal application such as [Tera Term](https://ttssh2.osdn.jp/index.html.en) or a browser-based application like [Google Chrome Labs Serial Terminal](https://googlechromelabs.github.io/serial-terminal/).
 * Tera Term can be installed by launching PowerShell and executing:
 ```powershell
@@ -16,20 +16,26 @@ winget install -e --id TeraTermProject.teraterm
 * A registered [myInfineon Account](https://www.infineon.com/sec/login)
 
 ## Hardware Setup
-* See the kit user guide to ensure that the board is configured correctly.
-* If using the EVK board, ensure the following jumper and pin configuration on board.
-  * BOOT SW must be in the LOW/OFF position. NOTE: This is the default configuration and different from most other Avent projects.
+
+* Ensure the following jumper and pin configuration on board.
+  * BOOT SW must be in the LOW/OFF position. NOTE: This is the default configuration for a shipped board, but different from most other Avnet projects.
   * J20 and J21 must be in the tristate/not connected (NC) position (these should be default)
-* Identify the debug USB port for your board from the board's user manual.
-* Connect the board's debug port to a USB port on your PC. A new USB device should be detected.
-Firmware logs will be available on that COM port.
-* Open the Serial Terminal application and configure as shown below:
-  * Port: (Select the COM port with the device)
+* Identify the two debug USB port for your board from the board's user manual:
+  
+![USB Ports](images/e84-evk-usb.jpg)
+
+* The board can be powered with either of the two ports that are marked on the image above.
+The two USB-C ports are used for different purposes:
+  * The **KITPROG3 USB** port - *Cypress Semiconductor KitProg3 CMSIS-DAP* - used for flashing, debugging and application log messages.
+  * The **DEVICE USB** port - *Infineon Technologies Avnet CDC Configurator* - used for user interaction and runtime board configuration.
+* When connecting a Serial Terminal program to either of the two ports, configure the connection as shown below:
+  * Port: (Select the desired COM port)
   * Speed: `115200`
   * Data: `8 bits`
   * Parity: `none`
   * Stop Bits: `1`
   * Flow Control: `none`
+
   
 ## Building the Software
 
@@ -57,11 +63,6 @@ that explain how to install VS Code itself, the required VS Code Plugins and the
 from the dropdown on top-right and then click *Launch Project Creator*.
 - Select one of the supported boards from [README.md](README.md) and click *Next*.
 
-> [!WARNING]
-> On Windows, the combined path of *Application Root Path* and *New Application Name* 
-> below **must not** exceed 36 characters. For example, use C:\projects\avt-psa-root\avt-psa-app
-> where *C:\projects\avt-psa-root* is the application root and *avt-psa-app* is the application name.
-
 > [!TIP]
 > In the steps below, for simplicity, and for the sake of covering both configuration approaches, 
 > we describe how your Wi-Fi credentials and /IOTCONNECT device information
@@ -72,10 +73,17 @@ from the dropdown on top-right and then click *Launch Project Creator*.
 > with programming the built project.
 
 - For the Application(s) Root Path, specify or browse to a directory where the application will be created.
+This path should be short (see below).
 - Ensure that the Target IDE is *Microsoft Visual Studio Code*.
 - Checkmark this repo's application by browsing Template Applications or searching for this application name. 
 We suggest searching for "Avnet" first to reduce the list.
 - Override the New Application Name value in the corresponding column in the table to a shorter name.
+
+> [!WARNING]
+> On Windows, the combined path of *Application Root Path* and *New Application Name* 
+> below **must not** exceed 36 characters. For example, use C:\projects\avt-psa-root\avt-psa-app
+> where *C:\projects\avt-psa-root* is the Project Creator application root and *avt-psa-app* is the application name.
+
 - Click *Create* and close the Project Creator when the project is created successfully.
 - Open VS Code, and Select *File -> Open Workspace from File*, navigate to the location of the application that was just
 created, select the workspace file, and click *Open*.

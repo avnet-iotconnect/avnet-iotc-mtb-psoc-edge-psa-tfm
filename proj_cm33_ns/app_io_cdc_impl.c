@@ -129,10 +129,10 @@ static void usb_add_cdc(void)
 void app_io_start_password_masking(void) {
     is_password_masking_enabled = true;
 }
+
 void app_io_stop_password_masking(void) {
     is_password_masking_enabled = false;
 }
-
 
 void app_io_write_data(const char* data, size_t data_len) {
     size_t total_written = 0;
@@ -243,7 +243,6 @@ int app_io_read_lines(char * buffer, size_t buffer_len, bool until_eod) {
     Cy_GPIO_Write(CYBSP_USER_LED_PORT, CYBSP_USER_LED_PIN, GPIO_LOW);
 
     return (int) total_received;
-
 }
 
 int app_io_init(void) {
@@ -262,34 +261,6 @@ int app_io_init(void) {
     USBD_Start();
 
     return 0;
-}
-
-void usb_cdc_test(void * param) {
-    (void) param;
-
-    app_io_init();
-
-    vTaskDelay(pdMS_TO_TICKS(3000));
-
-    app_io_write_str_crlf("Hello from USB CDC!");
-    app_io_write_str("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789!\r\n");
-
-    char read_buffer[1024];
-    app_io_write_str_crlf("Please type something and press Enter:");
-    app_io_read_lines(read_buffer, sizeof(read_buffer), false);
-    app_io_write_str_crlf(""); 
-    printf("Received from USB CDC: %s\n", read_buffer);
-
-    app_io_write_str_crlf("Please type something and press CTRL+D:");
-    app_io_read_lines(read_buffer, sizeof(read_buffer), true);    
-    app_io_write_str_crlf(""); // most terminals will just have CR in the input, so add a newline
-    printf("Received from USB CDC until EOD: %s\n", read_buffer);
-
-
-
-    for(;;) {
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
 }
 
 /* [] END OF FILE */
