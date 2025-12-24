@@ -22,8 +22,11 @@
 #include "app_configurator_task.h"
 #include "app_config.h"
 
+
+// when this is true, other tasks can wait for the configurator to finish
 static volatile bool s_configurator_in_progress = false;
 
+// Prints the header intro
 static void print_device_intro(void) {
     const char* psa_cert = app_psa_mqtt_get_certificate();
     if (psa_cert && strlen(psa_cert) > 0) {
@@ -55,7 +58,7 @@ static void print_device_intro(void) {
     // feel free to modify the application to use these bytes
     // uint32_t hwuidlo = (uint32_t)(hwuid & 0xFFFFFFFF);
     sprintf(unique_id, "%08lx", (unsigned long) hwuidhi);
-    app_io_write_str("Suggested uniquely generated device ID: ");
+    app_io_write_str("Suggested Device Unique ID (DUID): ");
     app_io_write_str(IOTCONNECT_DUID_PREFIX);
     app_io_write_str_crlf(unique_id);
     app_io_write_str_crlf("");

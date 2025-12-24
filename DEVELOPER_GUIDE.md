@@ -62,6 +62,15 @@ from the dropdown on top-right and then click *Launch Project Creator*.
 > below **must not** exceed 36 characters. For example, use C:\projects\avt-psa-root\avt-psa-app
 > where *C:\projects\avt-psa-root* is the application root and *avt-psa-app* is the application name.
 
+> [!TIP]
+> In the steps below, for simplicity, and for the sake of covering both configuration approaches, 
+> we describe how your Wi-Fi credentials and /IOTCONNECT device information
+> can be hardcoded into the firmware.
+> It is however recommended to leave those settings as-is, program the board once,
+> and use the **Device Configurator** runtime configuration instead.
+> Refer to the [QUICKSTART.md](QUICKSTART.md) for instructions and replace the *ModusToolbox Programmer* step
+> with programming the built project.
+
 - For the Application(s) Root Path, specify or browse to a directory where the application will be created.
 - Ensure that the Target IDE is *Microsoft Visual Studio Code*.
 - Checkmark this repo's application by browsing Template Applications or searching for this application name. 
@@ -121,6 +130,8 @@ selecting *Terminal -> Run Task -> Program* from the IDE menu.
 - If you wish to debug the project, select *Run > Start Debugging* instead.
 - The board certificate and your DUID will be displayed in the terminal. Use the DUID and the certificate
 to register the device with /IOTCONNECT in the steps below.
+- If you need to re-generate the certificate, see references to ```psa_its_remove``` in
+[app_psa_mqtt.c](proj_cm33_ns/app_psa_mqtt.c).
 
 ## Cloud Account Setup
 

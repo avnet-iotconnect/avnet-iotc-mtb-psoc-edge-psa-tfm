@@ -113,7 +113,10 @@ void app_psa_mqtt_setup_huk(void)
     }
     /* ------------------- Check if certificate exists in ITS ------------------- */
     size_t get_size = 0;
-    // psa_its_remove(CRT_DER_ITS_UID); // for testing only. Uncomment to cycle the certificate.
+    // For re-generating the certificate:
+    // Uncomment the line below, flash once and boot to trigger the slot removal, comment out the line and re-flash once more.
+    // If you registered the device with /IOTCONNECT, you will need to delete the device and create it again
+    // psa_its_remove(CRT_DER_ITS_UID);
     status = psa_its_get(CRT_DER_ITS_UID, 0, sizeof(crt_der_data_t), der_data, &get_size);
 
     if (status == PSA_SUCCESS && get_size >= sizeof(crt_der_header_t) && der_data->hdr.version == CRT_DER_HEADER_VERSION) {

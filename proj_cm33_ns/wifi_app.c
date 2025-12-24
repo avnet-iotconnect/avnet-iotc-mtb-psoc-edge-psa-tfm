@@ -143,8 +143,9 @@ static cy_rslt_t wifi_connect(void)
         const char * wifi_ssid = app_its_config_get_wifi_ssid(WIFI_SSID);
         const char * wifi_password = app_its_config_get_wifi_pass(WIFI_PASSWORD); 
         if (wifi_ssid == NULL || strlen(wifi_ssid) == 0) {
-            printf("Wi-Fi SSID is not configured.\n");
-            printf("Please set the Wi-Fi SSID using the device configurator.\n");
+            printf("Wi-Fi is not configured.\n");
+            printf("Please configure the device using the device configurator.\n");
+
             // NOTE: Eventually the user may configure the values via the configurator
             do {
                 vTaskDelay(pdMS_TO_TICKS(WIFI_CONN_RETRY_INTERVAL_MS));

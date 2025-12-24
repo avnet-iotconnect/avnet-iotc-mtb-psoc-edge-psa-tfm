@@ -26,7 +26,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-#define APP_VERSION_BASE "1.0.0"
+#define APP_VERSION_BASE "1.1.0"
 
 // Defined in common.mk then dereference in this Makefile with DEFINES+=
 #if defined(COUGH_MODEL)
