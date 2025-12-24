@@ -47,7 +47,7 @@ The two USB-C ports are used for different purposes:
 
 ## Flashing The Firmware
 
-* Download the [avnet-iotc-mtb-psoc-edge-psa-tfm-v1.1.0.zip](https://us-east-1.console.aws.amazon.com/s3/object/downloads.iotconnect.io?region=us-east-1&prefix=partners/infineon/demos/avnet-iotc-mtb-psoc-edge-psa-tfm-v1.1.0.zip). Unzip the file to a location of your choosing.
+* Download the [avnet-iotc-mtb-psoc-edge-psa-tfm-v1.1.0.zip](https://downloads.iotconnect.io/partners/infineon/demos/avnet-iotc-mtb-psoc-edge-psa-tfm-v1.1.0.zip). Unzip the file to a location of your choosing.
   
 * Connect the USB cable to the **KITPROG3 USB** port on the board.
 * Run the ModusToolbox Programmer application. On Windows you can use the *Search* feature in the taskbar.
