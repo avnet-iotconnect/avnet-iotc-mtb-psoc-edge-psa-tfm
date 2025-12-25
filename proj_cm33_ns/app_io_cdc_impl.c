@@ -87,7 +87,7 @@ static const USB_DEVICE_INFO usb_device_info = {
     "12839847"                    /* SerialNumber */
 };
 
-// Handle for the CDC class isntance that is used in all calls
+// Handle for the CDC class instance that is used in all calls
 static USB_CDC_HANDLE usb_cdc_handle;
 static bool is_password_masking_enabled = false;
 

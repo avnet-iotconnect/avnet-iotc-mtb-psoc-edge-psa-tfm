@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include "iotconnect.h"
 
-// snure this does not conflict with APP_PSA_CERT_ITS_UID
+// ensure this does not conflict with APP_PSA_CERT_ITS_UID
 #ifndef APP_DEVICE_CONFIG_ITS_UID
 #define APP_DEVICE_CONFIG_ITS_UID    (7U)
 #endif

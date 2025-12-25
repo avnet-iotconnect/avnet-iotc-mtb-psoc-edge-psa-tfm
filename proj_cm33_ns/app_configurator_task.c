@@ -168,14 +168,13 @@ void app_configurator_task(void * param) {
     
     int parsing_result;
     
-    app_io_write_str_crlf("Device configuration can be found at your /IOTCONNECT device's Info pannel.");
+    app_io_write_str_crlf("Device configuration can be found at your /IOTCONNECT device's Info panel.");
     do {
         IotclDraJsonConfigResult json_config_result = {0};
 
         app_io_write_str_crlf("Copy and paste the Device JSON configuration (iotcDeviceConfig.json).");
         app_io_write_str_crlf("When done, press CTRL+D:");
         app_io_read_lines(input_buffer, sizeof(input_buffer), true);
-        parsing_result = iotcl_dra_json_config_parse(&json_config_result, input_buffer);
         parsing_result = iotcl_dra_json_config_parse(&json_config_result, input_buffer);
         if (parsing_result == IOTCL_SUCCESS) {
             app_io_write_str("Platform: ");

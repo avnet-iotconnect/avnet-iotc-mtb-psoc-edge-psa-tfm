@@ -5,7 +5,7 @@ Infineon PSOC™ Edge E84 Evaluation Kit (KIT_PSE84_EVAL) MCU board
 for connecting to Avnet's /IOTCONNECT Platform with device-generated certificates
 while using the pre-built firmware.
 
-If you wish to experience the development environment and build the formware
+If you wish to experience the development environment and build the firmware
 see the [Developer Guide](DEVELOPER_GUIDE.md).
 
 ## Prerequisites
@@ -158,7 +158,7 @@ by clicking the icon in the upper right of the device *Info* panel page.
 * Restart or resume the Device configurator terminal session
 while the device is connected to the **DEVICE USB** port.
 * Follow the on-screen instructions:
-  * Enter your Wi-Fi SSD and password when prompted. Empty password can be entered for open networks.
+  * Enter your Wi-Fi SSID and password when prompted. Empty password can be entered for open networks.
   * Copy and paste your **Device Configuration Information** from the step above. Press CTRL-D on your keyboard when done. 
 * Disconnect **DEVICE USB** port and connect it to the **KITPROG3 USB** port.
 * The device should connect to /IOTCONNECT and start sending messages similar to this one:

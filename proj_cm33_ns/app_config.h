@@ -9,7 +9,7 @@
 #include "iotconnect.h"
 
 // ---- I M P O R T A N T ----
-// It is possible to hardcode the confuguration values here for quick testing
+// It is possible to hardcode the configuration values here for quick testing
 // or production devices.
 // For a streamlined user experience, use the configurator application to set these
 // values instead, while connecting a terminal emulator to the second USB port

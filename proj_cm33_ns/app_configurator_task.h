@@ -6,7 +6,7 @@
 #ifndef APP_CONFIGURATOR_TASK_H_
 #define APP_CONFIGURATOR_TASK_H_ 
 
-// This value should be large enougth to hold the entire JSON configuration pasted by user
+// This value should be large enough to hold the entire JSON configuration pasted by user
 #ifndef APP_CONFIGURATOR_MAX_INPUT_LEN
 #define APP_CONFIGURATOR_MAX_INPUT_LEN    (512U)
 #endif
