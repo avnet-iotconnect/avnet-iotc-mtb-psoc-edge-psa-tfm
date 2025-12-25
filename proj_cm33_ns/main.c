@@ -55,6 +55,10 @@
 #include "tfm_hal_multi_core.h"
 #include "os_wrapper/common.h"
 
+#include "app_its_config.h"
+#include "app_psa_mqtt.h"
+#include "app_configurator_task.h"
+
 /******************************************************************************
  * Macros
  ******************************************************************************/
@@ -203,7 +207,7 @@ int main(void)
     setup_tickless_idle_timer();
 
     /* Initialize retarget-io middleware */
-    init_retarget_io();
+    init_retarget_io(); // This will route to tfm
 
     /* Initialize rtc */
     Cy_RTC_Init(&CYBSP_RTC_config);
@@ -229,8 +233,10 @@ int main(void)
     printf("PSOC Edge MCU: /IOTCONNECT Client\n");
     printf("===============================================================\n");
 
-    printf("CM33 /IOTCONNECT App Task Starting. Waiting for CM55 IPC to start...\n");
+    // do this before app_its_config_init to ensure cert is ready for printing
+    app_psa_mqtt_setup_huk();
 
+    printf("CM33 /IOTCONNECT App Task Starting. Waiting for CM55 IPC to start...\n");
 
     /* Cy_SysEnableCM55(MXCM55, CY_CM55_APP_BOOT_ADDR, CM55_BOOT_WAIT_TIME_US);
      * replaced with below:
@@ -239,7 +245,9 @@ int main(void)
      * */
     tfm_hal_boot_ns_cpu(CY_CM55_APP_BOOT_ADDR);
 
-    /* DO NOT PRINT ANYTHING after this line until we sync. This should avoid partial lines in logs. */
+    app_its_config_init();
+
+    app_configurator_task_start();
 
     result = xTaskCreate(app_task, "IOTC APP task", APP_TASK_STACK_SIZE,
                 NULL, APP_TASK_PRIORITY, NULL);
