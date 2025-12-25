@@ -185,8 +185,9 @@ void app_io_write_str(const char* data) {
 
 int app_io_read_lines(char * buffer, size_t buffer_len, bool until_eod) {
     size_t total_received = 0;
-    if (buffer_len < 1) {
+    if (!buffer || buffer_len < 1) {
         printf("usb_read_lines: buffer_len must be at least 1 to accommodate null terminator\n");
+        return -1;
     }
     
     buffer[0] = '\0'; // clear the buffer

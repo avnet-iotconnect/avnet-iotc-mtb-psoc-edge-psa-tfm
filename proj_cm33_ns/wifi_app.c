@@ -141,7 +141,7 @@ static cy_rslt_t wifi_connect(void)
         memset(&connect_param, 0, sizeof(cy_wcm_connect_params_t));
         app_configurator_wait_if_in_progress();
         const char * wifi_ssid = app_its_config_get_wifi_ssid(WIFI_SSID);
-        const char * wifi_password = app_its_config_get_wifi_pass(WIFI_PASSWORD); 
+        const char * wifi_password = app_its_config_get_wifi_pass(WIFI_PASSWORD);
         if (wifi_ssid == NULL || strlen(wifi_ssid) == 0) {
             printf("Wi-Fi is not configured.\n");
             printf("Please configure the device using the device configurator.\n");
@@ -151,7 +151,7 @@ static cy_rslt_t wifi_connect(void)
                 vTaskDelay(pdMS_TO_TICKS(WIFI_CONN_RETRY_INTERVAL_MS));
                 app_configurator_wait_if_in_progress();
                 wifi_ssid = app_its_config_get_wifi_ssid(WIFI_SSID);
-                wifi_password = app_its_config_get_wifi_pass(WIFI_PASSWORD); 
+                wifi_password = app_its_config_get_wifi_pass(WIFI_PASSWORD);
             } while (wifi_ssid == NULL || strlen(wifi_ssid) == 0);
         }
 
