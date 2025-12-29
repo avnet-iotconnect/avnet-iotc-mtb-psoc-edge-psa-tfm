@@ -1,7 +1,6 @@
-/* psa_huk.c - HUK-derived volatile key + ITS-stored deterministic certificate
- * Decision based ONLY on certificate presence in ITS slot 8
- * Uses original gencert.c as-is
- * SPDX-License-Identifier: MIT
+/* SPDX-License-Identifier: MIT
+ * Copyright (C) 2025 Avnet
+ * Authors: Nikola Markovic <nikola.markovic@avnet.com>, Shu Liu <shu.liu@avnet.com> et al.
  */
 
 #include <stdio.h>
@@ -20,9 +19,11 @@
 
 #include "iotconnect.h"
 
+#include "app_psa_mqtt.h"
+
 /* Configuration */
 #define HUK_KEY_ID          ((psa_key_id_t)0x7FFF0000U)   // Factory test key - die-unique, always accessible
-#define CRT_DER_ITS_UID     (8U)                          // New ITS slot for certificate
+#define APP_PSA_CERT_ITS_UID     (8U)                          // New ITS slot for certificate
 #define CRT_DER_DATA_SIZE   (512)
 #define KEY_DERIVATION_INPUT_DATA   "Avnet IoTConnect P256R1 Client v1"
 #define CRT_DER_HEADER_VERSION  (0xA1)
@@ -49,7 +50,7 @@ extern int generate_selfsigned_cert_psa(mbedtls_pk_context *key,
                                         size_t der_buffer_len);
 
 /* Setup PSA key and certificate for MQTT */
-void psa_mqtt_setup_huk(void)
+void app_psa_mqtt_setup_huk(void)
 {
     psa_status_t status;
     crt_der_data_t* der_data = NULL;
@@ -112,11 +113,14 @@ void psa_mqtt_setup_huk(void)
     }
     /* ------------------- Check if certificate exists in ITS ------------------- */
     size_t get_size = 0;
-    // psa_its_remove(CRT_DER_ITS_UID); // for testing only. Uncomment to cycle the certificate.
-    status = psa_its_get(CRT_DER_ITS_UID, 0, sizeof(crt_der_data_t), der_data, &get_size);
+    // For re-generating the certificate:
+    // Uncomment the line below, flash once and boot to trigger the slot removal, comment out the line and re-flash once more.
+    // If you registered the device with /IOTCONNECT, you will need to delete the device and create it again
+    // psa_its_remove(APP_PSA_CERT_ITS_UID);
+    status = psa_its_get(APP_PSA_CERT_ITS_UID, 0, sizeof(crt_der_data_t), der_data, &get_size);
 
     if (status == PSA_SUCCESS && get_size >= sizeof(crt_der_header_t) && der_data->hdr.version == CRT_DER_HEADER_VERSION) {
-        printf("PSA: Certificate found in ITS slot %d, size=%d\n", (int) CRT_DER_ITS_UID, der_data->hdr.size);
+        printf("PSA: Certificate found in ITS slot %d, size=%d\n", (int) APP_PSA_CERT_ITS_UID, der_data->hdr.size);
 
         /* Convert stored DER to PEM for printing */
         size_t pem_len;
@@ -162,12 +166,12 @@ void psa_mqtt_setup_huk(void)
         }
         der_data->hdr.size = cert_ret;
 
-        status = psa_its_set(CRT_DER_ITS_UID, sizeof(crt_der_data_t), der_data, PSA_STORAGE_FLAG_NONE);
+        status = psa_its_set(APP_PSA_CERT_ITS_UID, sizeof(crt_der_data_t), der_data, PSA_STORAGE_FLAG_NONE);
         if (status != PSA_SUCCESS) {
             printf("Failed to store cert in ITS slot 8: 0x%lx\n", (unsigned long)status);
             goto error_cleanup;
         }
-        printf("PSA_HUK: Certificate generated and stored in ITS slot %d\n", (int) CRT_DER_ITS_UID);
+        printf("PSA_HUK: Certificate generated and stored in ITS slot %d\n", (int) APP_PSA_CERT_ITS_UID);
 
         /* Convert and print */
         size_t pem_len;
@@ -195,12 +199,16 @@ error_cleanup:
     if (der_data) free(der_data);
     key_id = PSA_KEY_ID_NULL;
     // Trnasient errors could cause real problems here, 
-    // Probably not safe to delete the cert here:
-    // psa_its_remove(CRT_DER_ITS_UID); 
+    // Probably not safe to delete the key here:
+    // psa_its_remove(APP_PSA_CERT_ITS_UID);
+}
+
+const char* app_psa_mqtt_get_certificate(void) {
+    return crt_pem_buffer;
 }
 
 /* Configure security_info with PSA cert and opaque key */
-void setup_iotconnect_sdk_credentials(IotConnectClientConfig* config)
+void app_psa_mqtt_setup_sdk_credentials(IotConnectClientConfig* config)
 {
     if (!config) {
         printf("Error: PSA: config is null!\n");

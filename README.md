@@ -55,9 +55,12 @@ The same certificate will be retrieved and printed upon subsequent reboots.
 
 ## Set Up The Project
 
-For general instructions on how to set up and run infineon projects project, refer to the 
-[/IOTCONNECT ModusToolbox&trade; PSOC Edge Developer Guide](DEVELOPER_GUIDE.md), but red the section below FIRST:
+Refer to the [QUICKSTART.md](QUICKSTART.md) for instructions on how to 
+quickly test and evaluate your board with /IOTCONNECT with pre-built firmware.
 
+For general instructions on how to set up, build and run this project, refer to the 
+[/IOTCONNECT ModusToolbox&trade; PSOC Edge Developer Guide](DEVELOPER_GUIDE.md)
+, but refer to the section below FIRST:
 
 - To select the model, update the `MODEL_SELECTION` variable in the [common.mk](common.mk):
 
@@ -74,7 +77,7 @@ For general instructions on how to set up and run infineon projects project, ref
 depending on the application version and the model selected (first letter in the version prefix):
 
 ```
->: {"d":[{"d":{"version":"M-1.0.0","random":41,"event_id":0,"event":"up","event_detected":false}}]}
+>: {"d":[{"d":{"version":"M-1.1.0","random":41,"event_id":0,"event":"up","event_detected":false}}]}
 ```
 - 
 - The following commands can be sent to the device using the /IOTCONNECT Web UI:

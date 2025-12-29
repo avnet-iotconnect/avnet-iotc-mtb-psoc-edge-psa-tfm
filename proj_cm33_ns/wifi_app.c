@@ -61,6 +61,8 @@
 #include "cy_wcm.h"
 #include "retarget_io_init.h"
 
+#include "app_its_config.h"
+#include "app_configurator_task.h"
 #include "wifi_config.h"
 
 /******************************************************************************
@@ -137,8 +139,24 @@ static cy_rslt_t wifi_connect(void)
     {
         /* Configure the connection parameters for the Wi-Fi interface. */
         memset(&connect_param, 0, sizeof(cy_wcm_connect_params_t));
-        memcpy(connect_param.ap_credentials.SSID, WIFI_SSID, sizeof(WIFI_SSID));
-        memcpy(connect_param.ap_credentials.password, WIFI_PASSWORD, sizeof(WIFI_PASSWORD));
+        app_configurator_wait_if_in_progress();
+        const char * wifi_ssid = app_its_config_get_wifi_ssid(WIFI_SSID);
+        const char * wifi_password = app_its_config_get_wifi_pass(WIFI_PASSWORD);
+        if (wifi_ssid == NULL || strlen(wifi_ssid) == 0) {
+            printf("Wi-Fi is not configured.\n");
+            printf("Please configure the device using the device configurator.\n");
+
+            // NOTE: Eventually the user may configure the values via the configurator
+            do {
+                vTaskDelay(pdMS_TO_TICKS(WIFI_CONN_RETRY_INTERVAL_MS));
+                app_configurator_wait_if_in_progress();
+                wifi_ssid = app_its_config_get_wifi_ssid(WIFI_SSID);
+                wifi_password = app_its_config_get_wifi_pass(WIFI_PASSWORD);
+            } while (wifi_ssid == NULL || strlen(wifi_ssid) == 0);
+        }
+
+        strcpy((char *)connect_param.ap_credentials.SSID, wifi_ssid);
+        strcpy((char *)connect_param.ap_credentials.password, wifi_password);
         connect_param.ap_credentials.security = WIFI_SECURITY;
 
         printf("\nWi-Fi Connecting to '%s'\n", connect_param.ap_credentials.SSID);
