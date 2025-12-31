@@ -178,4 +178,6 @@ CY_GETLIBS_SHARED_PATH=../..
 #
 CY_GETLIBS_SHARED_NAME=mtb_shared
 
+-include ota.mk
+
 include $(CY_TOOLS_DIR)/make/start.mk
