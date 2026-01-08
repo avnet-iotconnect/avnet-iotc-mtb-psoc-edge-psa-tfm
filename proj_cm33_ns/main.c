@@ -39,6 +39,7 @@
 *******************************************************************************/
 
 /* Header file includes */
+#include "cy_log.h"
 #include "cybsp.h"
 #include "retarget_io_init.h"
 #include "app_task.h"
@@ -49,6 +50,7 @@
 #include "cy_time.h"
 #include "cycfg_peripherals.h"
 #include "ipc_communication.h"
+#include "cy_ota_api.h" // for log level setting
 
 // for TFM - must init before scheduler starts
 #include "tfm_ns_interface.h"
@@ -215,6 +217,12 @@ int main(void)
     
     /* Initialize the CLIB support library */
     mtb_clib_support_init(&obj);
+
+    /* default for all logging to WARNING */
+    cy_log_init(CY_LOG_WARNING, NULL, NULL);
+
+    /* default for OTA logging to NOTICE */
+	cy_ota_set_log_level(CY_LOG_DEBUG);
 
     /* Initialize TF-M interface - MUST be done before scheduler starts */
     result = tfm_ns_interface_init();

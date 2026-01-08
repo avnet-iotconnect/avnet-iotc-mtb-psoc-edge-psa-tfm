@@ -150,7 +150,7 @@ LDLIBS+=
 LINKER_SCRIPT=
 
 # Custom pre-build commands to run.
-PREBUILD=
+PREBUILD=git -C $(CY_GETLIBS_SHARED_PATH)/$(CY_GETLIBS_SHARED_NAME)/secure-sockets/release-v3.12.1 apply $(CURDIR)/patches/secure-sockets-no-mtls-fix.patch || true
 
 # Custom post-build commands to run.
 POSTBUILD=

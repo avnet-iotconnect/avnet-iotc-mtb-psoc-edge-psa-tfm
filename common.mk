@@ -90,7 +90,6 @@ APP_VERSION_BUILD?=0
 
 #Image version for update usecase
 else ifeq ($(IMG_TYPE),UPDATE)
-
 ifeq ($(UPDATE_TYPE),overwrite)
 ## Following 
 COMBINE_SIGN_JSON?=./configs/update_with_epb_overwrite.json

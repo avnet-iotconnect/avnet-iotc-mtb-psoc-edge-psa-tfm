@@ -23,6 +23,7 @@
 #include "app_psa_mqtt.h"
 #include "app_its_config.h"
 #include "app_config.h"
+#include "iotc_http_client.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -229,6 +230,25 @@ static cy_rslt_t publish_telemetry(void) {
     return CY_RSLT_SUCCESS;
 }
 
+#define TEST_BLOCK_SIZE  10 * 1024
+#define TEST_BLOCK_COUNT 30
+void memory_test() {
+    void *blocks[TEST_BLOCK_COUNT];
+    int i = 0;
+    for (; i < TEST_BLOCK_COUNT; i++) {
+        void *ptr = malloc(TEST_BLOCK_SIZE);
+        blocks[i] = ptr;
+        if (!ptr) {
+            break;
+        }
+    }
+    printf("====Allocated %d blocks of size %d (of max %d)===\r\n", i, TEST_BLOCK_SIZE, TEST_BLOCK_COUNT);
+    for (int j = 0; j < i; j++) {
+        free(blocks[j]);
+    }
+}
+
+
 void app_task(void *pvParameters) {
     (void) pvParameters;
 
@@ -242,7 +262,7 @@ void app_task(void *pvParameters) {
 
 #ifdef IOTC_OTA_SUPPORT
     /* We need to init external flash */
-	iotc_ota_init();
+	// iotc_ota_init();
 
     /* Validate the update */
 	iotc_ota_storage_validated();
@@ -290,7 +310,45 @@ void app_task(void *pvParameters) {
     wifi_app_connect();
 
     iotc_mtb_time_obtain(IOTCONNECT_SNTP_SERVER);
+#if 0
+#define URL2_HOST1 "downloads.iotconnect.io"
+#define URL2_PATH "/temp/gasvisor_test_ota.txt"
 
+
+    while (true) {
+        IotConnectHttpResponse response = {0};
+        memory_test();
+        iotconnect_https_request(&response,
+                             URL2_HOST1,
+							 URL2_PATH,
+							 NULL
+        );
+
+        // iotc_ota_run(app_its_config_get_platform(IOTCONNECT_CONNECTION_TYPE), UTL_HOST, URL_PATH, NULL);
+        // iotc_ota_run(app_its_config_get_platform(IOTCONNECT_CONNECTION_TYPE), URL2_HOST1, URL2_PATH, NULL);
+        
+        taskYIELD();
+    }
+#endif
+#if 1
+#define URL1_HOST "iotc-260030673750.s3.us-east-1.amazonaws.com"
+#define URL1_PATH "/584af730-2854-4a77-8f3b-ca1696401e08/firmware/65fca4a8-735a-49d4-866d-fb9659f8ad1b/a8265d59-612a-48cd-b11b-b0018f101d6f.tar?X-Amz-Expires=1740&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEIP%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQCAKi5Bjf7nOc1uM7hXSLo2TANmFd1JohLmNuprgifS%2FAIhAIXXJIjlS%2BDgNrkGTOqZ0fH0Pww0vueUoaoN0tdQN%2BSYKpcCCEsQARoMMjYwMDMwNjczNzUwIgxOMnkZo%2BOMOvMEXnIq9AGFDQ17lqZK%2FZZ4YvHzCbTt%2BmWob8KPI1fCIqOUgDw8kfQtlgAbJpXL%2FbeSbnwgmTf9rSbs2Vmdnehsjug2P0funl%2F72RVLzdTC5gA%2BESs4lkcQlKWCJeah2c%2B0SkFRrq9epz8oBSc2ybuhtSb%2B%2FjRpynPzBaR29LUBUQ3DkwIh8lQa6TIRxwU5unQ08fS%2B1uoVdp3i%2Bm0E7M7n8jb9n1HhBctNewXdStdE5aQdzRQ0ru8xLTmM%2BxUkRb1iRYFklgDKGh2mSPjk%2B1YJp%2FV1PlOatqTrLawh69eHXLbkmNdulWeM9kVOs%2BoOd2ZYEwhl1cso4Dd5ML%2BC8MoGOpwB6OI60xY2kDTT7qC%2Fb%2BXN3wR8zrRg1DOsc76aKvjXym619070WCdA3pZ7%2BwdgWcWNovReRs1GpiPbg9vqh3eH8MBI%2BrMMpus1gMwDn47UVzFiaeHt22mEh9BydolEtkytBrtyJ2pIZXlD8v1Wj%2F3ykQTdVPAc%2FPeWcbQcAcQh7sRF8GLtM%2FisjTVIFpIIbeXRk3WLiKe8JoK6wYOa&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=ASIATZCYJGNLOUM5C6UR%2F20260105%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260105T182151Z&X-Amz-SignedHeaders=host&X-Amz-Signature=247a4b111d3a13b26ec5f86f68de9195800e2a58a8a83e4d680aa3332518ae07"
+    iotc_ota_run(app_its_config_get_platform(IOTCONNECT_CONNECTION_TYPE), URL1_HOST, URL1_PATH, NULL);
+    while (true) {
+        taskYIELD();
+    }
+#endif
+
+
+
+#if 0
+#define URL3_HOST "downloads.iotconnect.io"
+#define URL3_PATH "/temp/ota-update-2.0.0.tar"
+    iotc_ota_run(app_its_config_get_platform(IOTCONNECT_CONNECTION_TYPE), URL3_HOST, URL3_PATH, NULL);
+    while (true) {
+        taskYIELD();
+    }
+#endif
     cy_rslt_t ret = iotconnect_sdk_init(&config);
     if (CY_RSLT_SUCCESS != ret) {
         printf("Failed to initialize the IoTConnect SDK. Error code: %u\n", (unsigned int) ret);

@@ -126,13 +126,13 @@ extern "C" {
  * @brief HTTP timeout for sending messages
  *
  */
-#define CY_OTA_HTTP_TIMEOUT_SEND            (7000)         /* 700 miliseconds send timeout. */
+#define CY_OTA_HTTP_TIMEOUT_SEND            (7000)         /* 7 seconds send timeout. */
 
 /**
  * @brief HTTP timeout for receiving messages
  *
  */
-#define CY_OTA_HTTP_TIMEOUT_RECEIVE         (7000)         /* 700 miliseconds receive timeout. */
+#define CY_OTA_HTTP_TIMEOUT_RECEIVE         (7000)         /* 7 seconds receive timeout. */
 
 
 #undef CY_OTA_CHUNK_SIZE

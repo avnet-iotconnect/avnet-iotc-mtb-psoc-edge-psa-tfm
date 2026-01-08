@@ -31,6 +31,7 @@
 #undef MBEDTLS_ECP_DP_BP512R1_ENABLED
 // This is likely needed for RSA TLS 1.3 with /IOTCONNECT discovery/identity servers
 // but we coudldn't get it to work with PSA + RSA private keys
+// It want Montgomery with AWS, and we don't have it enabled in the PSA profile
 #undef MBEDTLS_ECP_DP_CURVE25519_ENABLED
 #undef MBEDTLS_ECP_DP_CURVE448_ENABLED
 
@@ -100,7 +101,9 @@
 #define MBEDTLS_SSL_OUT_CONTENT_LEN 4096
 
 // We want more prints
-// #define MBEDTLS_DEBUG_C
+#define MBEDTLS_DEBUG_C
+#undef MBEDTLS_VERBOSE
+#define MBEDTLS_VERBOSE 1
 
 //////////////////////////////////////
 #endif // MBEDTLS_USER_OVERLAY_HEADER
