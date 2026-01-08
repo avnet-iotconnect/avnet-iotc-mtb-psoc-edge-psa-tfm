@@ -100,10 +100,10 @@
 #undef MBEDTLS_SSL_OUT_CONTENT_LEN
 #define MBEDTLS_SSL_OUT_CONTENT_LEN 4096
 
-// We want more prints
-#define MBEDTLS_DEBUG_C
-#undef MBEDTLS_VERBOSE
-#define MBEDTLS_VERBOSE 1
+// We may want more prints
+// #define MBEDTLS_DEBUG_C
+// #undef MBEDTLS_VERBOSE
+// #define MBEDTLS_VERBOSE 1
 
 //////////////////////////////////////
 #endif // MBEDTLS_USER_OVERLAY_HEADER
