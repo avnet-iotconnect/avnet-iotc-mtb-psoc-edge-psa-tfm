@@ -36,12 +36,16 @@
 *******************************************************************************/
 /* Header file includes */
 #include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 #include "cy_pdl.h"
 #include "cy_ota_flash.h"
 
 #include "cycfg.h"
-#include "mtb_serial_memory.h"
-#include "cybsp_hw_config.h"
+#include "cycfg_qspi_memslot.h"  /* Generated QSPI config with S25FS128S_SMIF0_SlaveSlot_1 */
+#include "cy_smif_memslot.h"     /* PDL SMIF memslot API */
+
+/* Direct PDL access - bypassing mtb_serial_memory due to TF-M SRF context issue */
 
 /**********************************************************************************************************************************
  * local defines
@@ -61,9 +65,11 @@
 /**********************************************************************************************************************************
  * local variables & data
  **********************************************************************************************************************************/
-static mtb_serial_memory_t sm_obj;
-static cy_stc_smif_mem_context_t context;
-static cy_stc_smif_mem_info_t smif_mem_info;
+/* Simple SMIF context for direct PDL access.
+ * Hardware is already initialized by bootloader, so we just need a minimal context.
+ * We bypass mtb_serial_memory because its _nonsecure variant relies on SRF context
+ * that TF-M never populates (TF-M uses its own ifx_driver_smif, not PDL Cy_SMIF_MemNumInit). */
+static cy_stc_smif_context_t smif_context;
 
 /**********************************************************************************************************************************
  * Internal Functions
@@ -76,28 +82,20 @@ static cy_stc_smif_mem_info_t smif_mem_info;
  */
 cy_rslt_t cy_ota_mem_init( void )
 {
-    cy_rslt_t result = CY_RSLT_SUCCESS;
-
-       /* Initialize the QSPI block */
-#if ((DATA_WIDTH_PINS) == (SMIF_DATA_QUAD))
-    result = mtb_serial_memory_setup(&sm_obj, MTB_SERIAL_MEMORY_CHIP_SELECT_1, CYBSP_SMIF_CORE_0_XSPI_FLASH_hal_config.base, CYBSP_SMIF_CORE_0_XSPI_FLASH_hal_config.clock, &context, &smif_mem_info, &smif0BlockConfig);
-    if (result != CY_RSLT_SUCCESS)
-    {
-        printf("\nmtb_serial_memory_setup() failed in %s : line %d", __func__, __LINE__);
-    }
-#else
-    printf("not supported for other data width");
-#endif
-
-    if(result == CY_RSLT_SUCCESS)
-    {
-        printf("External Memory initialized w/ SFDP.");
-    } else 
-    {
-        printf("External Memory initialization w/ SFDP FAILED");
-    }
-
-    return result;
+    /* Direct PDL initialization - bypassing mtb_serial_memory.
+     * The SMIF hardware is already initialized by the bootloader.
+     * TF-M doesn't populate the SRF context array that mtb_serial_memory_setup_nonsecure() needs,
+     * so we use direct PDL Cy_SMIF_Mem* functions instead. */
+    
+    /* Initialize minimal context - hardware is already running from bootloader init */
+    memset(&smif_context, 0, sizeof(smif_context));
+    
+    /* 0 means no timeout (infinite wait) */
+    smif_context.timeout = 0UL;
+    
+    printf("External Memory initialized (direct PDL, bypassing mtb_serial_memory).\n");
+    
+    return CY_RSLT_SUCCESS;
 }
 
 /**
@@ -130,7 +128,21 @@ cy_rslt_t cy_ota_mem_read( cy_ota_mem_type_t mem_type, uint32_t addr, void *data
             //Nothing to do
         }
 
-        result = mtb_serial_memory_read(&sm_obj, addr, len, data);
+        /* Direct PDL call using generated memory config */
+        cy_en_smif_status_t smif_status;
+        smif_status = Cy_SMIF_MemRead(CYBSP_SMIF_CORE_0_XSPI_FLASH_HW, 
+                                       &S25FS128S_SMIF0_SlaveSlot_1,
+                                       addr, 
+                                       (uint8_t*)data, 
+                                       len, 
+                                       &smif_context);
+        
+        if (smif_status != CY_SMIF_SUCCESS)
+        {
+            printf("Cy_SMIF_MemRead failed: status=%d, addr=0x%08lx, len=%u\n", 
+                   (int)smif_status, (unsigned long)addr, (unsigned)len);
+            result = CY_RSLT_TYPE_ERROR;
+        }
 
         return result;
     }
@@ -172,7 +184,21 @@ static cy_rslt_t cy_ota_mem_write_row_size( cy_ota_mem_type_t mem_type, uint32_t
             //Nothing to do
         }
 
-        result = mtb_serial_memory_write(&sm_obj, addr, len, data);
+        /* Direct PDL call using generated memory config */
+        cy_en_smif_status_t smif_status;
+        smif_status = Cy_SMIF_MemWrite(CYBSP_SMIF_CORE_0_XSPI_FLASH_HW, 
+                                        &S25FS128S_SMIF0_SlaveSlot_1,
+                                        addr, 
+                                        (const uint8_t*)data, 
+                                        len, 
+                                        &smif_context);
+        
+        if (smif_status != CY_SMIF_SUCCESS)
+        {
+            printf("Cy_SMIF_MemWrite failed: status=%d, addr=0x%08lx, len=%u\n", 
+                   (int)smif_status, (unsigned long)addr, (unsigned)len);
+            result = CY_RSLT_TYPE_ERROR;
+        }
 
         return result;
     }
@@ -293,7 +319,21 @@ cy_rslt_t cy_ota_mem_erase( cy_ota_mem_type_t mem_type, uint32_t addr, size_t le
         {
             //Nothing to do
         }
-        result = mtb_serial_memory_erase(&sm_obj, offset, len);
+        
+        /* Direct PDL call using generated memory config */
+        cy_en_smif_status_t smif_status;
+        smif_status = Cy_SMIF_MemEraseSector(CYBSP_SMIF_CORE_0_XSPI_FLASH_HW, 
+                                              &S25FS128S_SMIF0_SlaveSlot_1,
+                                              offset, 
+                                              len, 
+                                              &smif_context);
+        
+        if (smif_status != CY_SMIF_SUCCESS)
+        {
+            printf("Cy_SMIF_MemEraseSector failed: status=%d, addr=0x%08lx, len=%u\n", 
+                   (int)smif_status, (unsigned long)offset, (unsigned)len);
+            result = CY_RSLT_TYPE_ERROR;
+        }
 
         return result;
     }
@@ -316,9 +356,11 @@ cy_rslt_t cy_ota_mem_erase( cy_ota_mem_type_t mem_type, uint32_t addr, size_t le
  */
 size_t cy_ota_mem_get_prog_size ( cy_ota_mem_type_t mem_type, uint32_t addr )
 {
+    (void)addr; /* unused - same prog size across entire flash */
     if(mem_type == CY_OTA_MEM_TYPE_EXTERNAL_FLASH)
     {
-        return mtb_serial_memory_get_prog_size(&sm_obj, addr);
+        /* Return program page size from generated device config */
+        return deviceCfg_S25FS128S_SMIF0_SlaveSlot_1.programSize;
     }
     else
     {
@@ -336,9 +378,11 @@ size_t cy_ota_mem_get_prog_size ( cy_ota_mem_type_t mem_type, uint32_t addr )
  */
 size_t cy_ota_mem_get_erase_size ( cy_ota_mem_type_t mem_type, uint32_t addr )
 {
+    (void)addr; /* unused - same erase size across entire flash (or use hybrid region lookup if needed) */
     if(mem_type == CY_OTA_MEM_TYPE_EXTERNAL_FLASH)
     {
-        return mtb_serial_memory_get_erase_size(&sm_obj, SECTOR_ADDR);
+        /* Return erase sector size from generated device config */
+        return deviceCfg_S25FS128S_SMIF0_SlaveSlot_1.eraseSize;
     }
     else
     {
