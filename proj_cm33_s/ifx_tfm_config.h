@@ -13,7 +13,7 @@
  * Increase IOVEC buffer for large certificate chains (AWS S3 sends ~5.5KB certs)
  * Default is 5120, but we need more for TLS handshake hash operations
  */
-#define CRYPTO_IOVEC_BUFFER_SIZE    6144
+#define CRYPTO_IOVEC_BUFFER_SIZE    (10240U)
 
 /*
  * Heap size for the crypto backend
