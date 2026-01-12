@@ -45,6 +45,13 @@ extern "C" {
  * \addtogroup group_ota_config
  * \{
  */
+
+/**
+ * @brief Size of buffer for JSON update document
+ *
+ * Increased from default 1024 to 2048 to accommodate long HTTP request strings.
+ */
+#define CY_OTA_JSON_DOC_BUFF_SIZE           (2048)
 /**
  * @brief Initial time for checking for OTA updates.
  *
