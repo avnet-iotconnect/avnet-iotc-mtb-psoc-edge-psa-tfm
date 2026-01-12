@@ -4812,7 +4812,7 @@
                         <Param id="offset" value="0x00058000"/>
                         <Param id="regionId" value="m33_code"/>
                         <Param id="reservedGuid" value="USER_DEFINED"/>
-                        <Param id="size" value="0x00065000"/>
+                        <Param id="size" value="0x00035000"/>
                     </Parameters>
                 </Personality>
                 <Personality template="memory_region_data" version="1.0" instance="rF4o_hNHwc0">
@@ -4821,10 +4821,10 @@
                         <Param id="description" value="CM33 data region"/>
                         <Param id="domain" value="Rj_rAX1eb8U"/>
                         <Param id="memoryId" value="SRAM"/>
-                        <Param id="offset" value="0x000BD000"/>
+                        <Param id="offset" value="0x0008D000"/>
                         <Param id="regionId" value="m33_data"/>
                         <Param id="reservedGuid" value="USER_DEFINED"/>
-                        <Param id="size" value="0x00040000"/>
+                        <Param id="size" value="0x00070000"/>
                     </Parameters>
                 </Personality>
                 <Personality template="memory_region_data" version="1.0" instance="DhUV7mLaCmM">
