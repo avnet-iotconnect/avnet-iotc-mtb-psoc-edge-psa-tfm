@@ -222,7 +222,7 @@ int main(void)
     cy_log_init(CY_LOG_WARNING, NULL, NULL);
 
     /* default for OTA logging to NOTICE */
-	cy_ota_set_log_level(CY_LOG_INFO);
+	cy_ota_set_log_level(CY_LOG_WARNING);
 
     /* Initialize TF-M interface - MUST be done before scheduler starts */
     result = tfm_ns_interface_init();
