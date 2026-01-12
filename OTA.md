@@ -15,19 +15,4 @@ OTA support for the project needs the steps below.
     #define CY_OTA_JSON_DOC_BUFF_SIZE               (2048)
 ```
 
-1. *mtb_shared\avnet-iotc-mtb-sdk\release-tag\source\iotc_mqtt_client.c*
-(not doing this causes a disconnect when OTA is sent)
-```c
-    #define MQTT_NETWORK_BUFFER_SIZE          (4096U)
-```
-
-1. Add SNI-relates lines to the SDK mtb_shared\avnet-iotc-mtb-sdk\release-tag\source\iotc_ota.c:
-```c
-	ota_network_params.http.file = iotcl_strdup(path);
-	ota_network_params.http.server.host_name = iotcl_strdup(host);
-	ota_network_params.http.credentials.sni_host_name = ota_network_params.http.server.host_name;
-	ota_network_params.http.credentials.sni_host_name_size = strlen(ota_network_params.http.server.host_name) + 1; // with null terminator
-    ....
-```
-
 
