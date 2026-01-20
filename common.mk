@@ -67,7 +67,6 @@ CONFIG=Debug
 
 #Image Type can be BOOT or UPDATE. Default to BOOT.
 # To overwrite default values, set IMG_TYPE?=UPDATE here or pass IMG_TYPE=UPDATE in commandline
-#IMG_TYPE?=BOOT
 IMG_TYPE?=BOOT
 
 # This code examples demonstartes update by 'overwrite' only.

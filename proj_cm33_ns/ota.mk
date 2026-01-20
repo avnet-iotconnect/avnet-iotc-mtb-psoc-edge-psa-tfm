@@ -2,7 +2,7 @@
 # Basic OTA configuration
 ################################################################################
 # Set to 1 to add OTA defines, sources, and libraries (must be used with MCUBoot)
-OTA_SUPPORT?=1
+OTA_SUPPORT?=0
 
 ifeq ($(OTA_SUPPORT),1)
     DEFINES+=IOTC_OTA_SUPPORT=1
