@@ -86,3 +86,7 @@ depending on the application version and the model selected (first letter in the
     |:-------------------------|-------------------|:--------------------------------------------------------------------------------------------------------|
     | `board-user-led`         | String (on/off)   | Turn the board LED on or off (Red LED on the EVK, Green on the AI)                                      |
     | `set-reporting-interval` | Number (eg. 2000) | Set telemetry reporting interval in milliseconds.  By default, the application will report every 2000ms |
+
+## OTA Guide
+
+- For more details, refer to the document [OTA.md](OTA.md).
