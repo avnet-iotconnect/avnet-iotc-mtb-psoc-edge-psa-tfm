@@ -51,7 +51,7 @@ extern "C" {
  *
  * This is used to start the timer for the initial OTA update check after calling cy_ota_agent_start().
  */
-#define CY_OTA_INITIAL_CHECK_SECS           (5)            /* 10 seconds */
+#define CY_OTA_INITIAL_CHECK_SECS           (5)            /* 5 seconds */
 
 /**
  * @brief Next time for checking for OTA updates.
