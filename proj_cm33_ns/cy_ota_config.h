@@ -100,7 +100,7 @@ extern "C" {
  * canceling the download.
  * Use 0x00 to disable.
  */
-#define CY_OTA_DATA_CHECK_TIME_SECS          (10 * 60)           /* 5 minutes for testing */
+#define CY_OTA_DATA_CHECK_TIME_SECS          (10 * 60)           /* 10 minutes for testing */
 
 /**
  * @brief Number of retries when attempting an OTA update.
