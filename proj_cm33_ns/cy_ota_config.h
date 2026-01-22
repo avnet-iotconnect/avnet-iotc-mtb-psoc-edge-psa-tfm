@@ -1,5 +1,5 @@
 /*****************************************************************************
-* File Name        : ota_test_console.c
+* File Name        : cy_ota_config.h
 *
 * Description      : User defines for the OTA library
 *
