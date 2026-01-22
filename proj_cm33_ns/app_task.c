@@ -242,7 +242,11 @@ void app_task(void *pvParameters) {
     printf("App Task: CM55 IPC is ready. Resuming the application...\n");
 
 #ifdef IOTC_OTA_SUPPORT
-    /* We need to init external flash */
+    /* We need to init external flash before using OTA storage.
+     * TODO: Uncomment iotc_ota_init() if OTA storage is not initialized
+     *       elsewhere and this platform requires explicit external-flash
+     *       initialization here, before validating the update.
+     */
 	// iotc_ota_init();
 
     /* Validate the update */
