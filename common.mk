@@ -69,7 +69,7 @@ CONFIG=Debug
 # To overwrite default values, set IMG_TYPE?=UPDATE here or pass IMG_TYPE=UPDATE in commandline
 IMG_TYPE?=BOOT
 
-# This code examples demonstartes update by 'overwrite' only.
+# This code examples demonstrates update by 'overwrite' only.
 UPDATE_TYPE?=overwrite
 
 #Sets the names of the application for OTA  
@@ -94,7 +94,7 @@ ifeq ($(UPDATE_TYPE),overwrite)
 COMBINE_SIGN_JSON?=./configs/update_with_epb_overwrite.json
 #COMBINE_SIGN_JSON?=./bsps/TARGET_$(TARGET)/config/GeneratedSource/boot_with_bldr.json
 else
-$(error Invalid UPDATE_TYPE. This code example demonstartes only 'overwrite' update)
+$(error Invalid UPDATE_TYPE. This code example demonstrates only 'overwrite' update)
 endif
 
 #Sets the version of the application for OTA    
