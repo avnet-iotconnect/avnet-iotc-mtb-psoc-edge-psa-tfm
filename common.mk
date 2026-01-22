@@ -90,7 +90,7 @@ APP_VERSION_BUILD?=0
 #Image version for update usecase
 else ifeq ($(IMG_TYPE),UPDATE)
 ifeq ($(UPDATE_TYPE),overwrite)
-## Following 
+## Following JSON config is used for the 'overwrite' update type
 COMBINE_SIGN_JSON?=./configs/update_with_epb_overwrite.json
 #COMBINE_SIGN_JSON?=./bsps/TARGET_$(TARGET)/config/GeneratedSource/boot_with_bldr.json
 else
