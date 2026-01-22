@@ -23,7 +23,7 @@ Alternatively, create an Environment Variable "OTA_SUPPORT" and set its value to
 
 #### Create an OTA firmware
 
-- In the file *proj/common.mk*, change the image type from BOOT to UPDATE
+- In the file *common.mk* (in the root project directory), change the image type from BOOT to UPDATE
 
 ```makefile
     IMG_TYPE?=UPDATE  // change from BOOT to UPDATE to make an OTA update build
