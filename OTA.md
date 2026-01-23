@@ -59,3 +59,7 @@ and upload the **File** by browsing to the OTA .tar file. Then, click **Save**.
 - Click the **Update** button to issue an OTA update.
 It will take around 5 minutes and after that, the board will reboot itself.
 
+
+#### Known issues
+
+- Rare chances that tfm_panic() during the OTA process or after OTA completes and a reset is issued.

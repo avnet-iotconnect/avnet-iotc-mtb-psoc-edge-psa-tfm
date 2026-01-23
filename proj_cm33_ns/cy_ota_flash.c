@@ -50,17 +50,10 @@
 /**********************************************************************************************************************************
  * local defines
  **********************************************************************************************************************************/
-/* This defines if External Flash (SMIF) will be used for Upgrade Slots */
-
-
-
-
-#define SECTOR_ADDR                 (0x40000U)  /* Offset to the start of external memory that belongs to the sector for which size is returned. */
-#define SMIF_DATA_QUAD              (0x04U)
-#define DATA_WIDTH_PINS             (0x04U)
+/* Values picked up from cy_ota_flash.c and flash_qspi.c in ota-bootloader-abstraction lib */
 #define CY_FLASH_ERASE_SIZE         (0x40000UL) /* Erase Size for External Flash and XIP area */
-#define CY_FLASH_SIZEOF_ROW         (512UL)
-
+#define CY_FLASH_SIZEOF_ROW         (512UL)     
+#define CY_OTA_SMIF_TIMEOUT_US      (1000)      /* SMIF operation timeout in microseconds */
 
 /**********************************************************************************************************************************
  * local variables & data
@@ -91,7 +84,7 @@ cy_rslt_t cy_ota_mem_init( void )
     memset(&smif_context, 0, sizeof(smif_context));
     
     /* 0 means no timeout (infinite wait) */
-    smif_context.timeout = 0UL;
+    smif_context.timeout = CY_OTA_SMIF_TIMEOUT_US;
     
     printf("External Memory initialized (direct PDL, bypassing mtb_serial_memory).\n");
     
@@ -159,7 +152,7 @@ cy_rslt_t cy_ota_mem_read( cy_ota_mem_type_t mem_type, uint32_t addr, void *data
  *
  * @param[in]   mem_type   Memory type @ref cy_ota_mem_type_t
  * @param[in]   addr       Starting address to write to.
- * @param[in]   data        Pointer to the buffer to conaitning the write data
+ * @param[in]   data        Pointer to the buffer containing the write data
  * @param[in]   len        Number of data bytes to write.
  *
  * @return  CY_RSLT_SUCCESS on success
