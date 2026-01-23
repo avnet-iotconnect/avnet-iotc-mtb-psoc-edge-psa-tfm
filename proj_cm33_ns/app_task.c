@@ -23,7 +23,6 @@
 #include "app_psa_mqtt.h"
 #include "app_its_config.h"
 #include "app_config.h"
-#include "iotc_http_client.h"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -88,37 +87,37 @@ static void on_ota(IotclC2dEventData data) {
     	return;
     }
 
-    printf("\n\nOTA download for https://%s%s\n", ota_host, ota_path);
+    printf("OTA download for https://%s%s\n", ota_host, ota_path);
 
 #ifdef IOTC_OTA_SUPPORT
-        /* Start the OTA task */
-		iotcl_mqtt_send_ota_ack(ack_id, IOTCL_C2D_EVT_OTA_DOWNLOADING, NULL);
+    /* Start the OTA task */
+    iotcl_mqtt_send_ota_ack(ack_id, IOTCL_C2D_EVT_OTA_DOWNLOADING, NULL);
 
-		const char* ota_err_str = NULL;
-        if(CY_RSLT_SUCCESS == iotc_ota_run(IOTCONNECT_CONNECTION_TYPE, ota_host, ota_path, NULL)) {
-        	ota_err_str = iotc_ota_get_download_error_string();
-        	printf("OTA completed with status: %s\n", ota_err_str ? ota_err_str : "No error");
-        } else {
-        	printf("ERROR: OTA failed to start!\n");
-        	ota_err_str = "OTA failed to start";
-        }
-		iotcl_mqtt_send_ota_ack(
-			ack_id,
-			ota_err_str ? IOTCL_C2D_EVT_OTA_DOWNLOAD_FAILED : IOTCL_C2D_EVT_OTA_DOWNLOAD_DONE,
-			ota_err_str
-		);
+    const char* ota_err_str = NULL;
+    if(CY_RSLT_SUCCESS == iotc_ota_run(IOTCONNECT_CONNECTION_TYPE, ota_host, ota_path, NULL)) {
+        ota_err_str = iotc_ota_get_download_error_string();
+        printf("OTA completed with status: %s\n", ota_err_str ? ota_err_str : "No error");
+    } else {
+        printf("ERROR: OTA failed to start!\n");
+        ota_err_str = "OTA failed to start";
+    }
+    iotcl_mqtt_send_ota_ack(
+        ack_id,
+        ota_err_str ? IOTCL_C2D_EVT_OTA_DOWNLOAD_FAILED : IOTCL_C2D_EVT_OTA_DOWNLOAD_DONE,
+        ota_err_str
+    );
 
-		if (NULL == ota_err_str) {
-        	printf("The board will reset in 5 seconds....\n");
-			vTaskDelay(pdMS_TO_TICKS(5000));
-			iotc_ota_system_reset();
-		}
+    if (NULL == ota_err_str) {
+        printf("The board will reset in 5 seconds....\n");
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        iotc_ota_system_reset();
+    }
 #else
-		iotcl_mqtt_send_ota_ack(
-			ack_id,
-			IOTCL_C2D_EVT_OTA_DOWNLOAD_FAILED,
-			"OTA not implemented"
-		);
+    iotcl_mqtt_send_ota_ack(
+        ack_id,
+        IOTCL_C2D_EVT_OTA_DOWNLOAD_FAILED,
+        "OTA not implemented"
+    );
 #endif
 
 }
@@ -242,12 +241,7 @@ void app_task(void *pvParameters) {
     printf("App Task: CM55 IPC is ready. Resuming the application...\n");
 
 #ifdef IOTC_OTA_SUPPORT
-    /* We need to init external flash before using OTA storage.
-     * TODO: Uncomment iotc_ota_init() if OTA storage is not initialized
-     *       elsewhere and this platform requires explicit external-flash
-     *       initialization here, before validating the update.
-     */
-	// iotc_ota_init();
+    iotc_ota_init();
 
     /* Validate the update */
 	iotc_ota_storage_validated();

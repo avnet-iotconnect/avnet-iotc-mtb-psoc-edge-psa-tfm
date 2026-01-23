@@ -135,13 +135,6 @@ extern "C" {
  */
 #define CY_OTA_HTTP_TIMEOUT_RECEIVE         (7000)         /* 7 seconds receive timeout. */
 
-
-#undef CY_OTA_CHUNK_SIZE
-#define CY_OTA_CHUNK_SIZE                   (4 * 1024)
-
-#undef CY_OTA_CHUNK_HEADER_SIZE
-#define CY_OTA_CHUNK_HEADER_SIZE            (1 * 1024)
-
 /**********************************************************************
  * Message Defines
  **********************************************************************/

@@ -15,13 +15,21 @@ increase the buff sizes below for the long HTTPS OTA URL:
 ```
 
 - In the file *proj_cm33_ns/ota.mk*, set the OTA flag below.
-Alternatively, create an Environment Variable "OTA_SUPPORT" and set its value to "1". After that, restart the IDE.
+Alternatively, create an Environment Variable ```"OTA_SUPPORT``` and set its value to ```1``` and restart the IDE.
 
 ```c
     OTA_SUPPORT?=1
 ```
 
-#### Create an OTA firmware
+#### Create the OTA Firmware
+
+For normal operation, the firmware must be programmed or debugged with the default setting in the *common.mk*:
+
+```makefile
+    IMG_TYPE?=BOOT
+```
+
+To create a firmware image that can be updated with /IOTCONNECT OTA  
 
 - In the file *common.mk* (in the root project directory), change the image type from BOOT to UPDATE
 
@@ -32,15 +40,13 @@ Alternatively, create an Environment Variable "OTA_SUPPORT" and set its value to
 - In the file *proj_cm33_ns/app_task.c*, increase the #define APP_VERSION_BASE,
 so that APP_VERSION_BASE can be used to verify if the OTA update is successful or not.
 
-- Build the project. The OTA .tar file will be generated in the project folder /build.
+- Build the project. The OTA .tar file will be generated in the project directory /build.
 
 #### /IOTCONNECT settings for OTA
 
-- Log into your IoTConnect account, *Settings -> Configurations*
-and ensure that the toggle for *Firmware Configuration* is enabled.
-
+- Log into your /IOTCONNECT account.
+- Go to *Settings -> Configurations* and ensure that the toggle for *Firmware Configuration* is enabled.
 - Click on *Firmware Configuration*, on the right panel:
-
     - Add *.tar* to **File Extensions**. Separate each file extension type with comma. 
     - Set **Maximum File Size** to at least 5MB. Use the dropdown to select the file size unit. Then, click **Save**.
     - Set **OTA URL Expiry** to at least 25 (minutes). Then, click **Save**.
@@ -58,7 +64,6 @@ and upload the **File** by browsing to the OTA .tar file. Then, click **Save**.
 - Select you device in **Devices**, then **Save**. 
 - Click the **Update** button to issue an OTA update.
 It will take around 5 minutes and after that, the board will reboot itself.
-
 
 #### Known issues
 

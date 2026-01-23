@@ -28,8 +28,8 @@ The M33 Non-Secure application is a custom /IOTCONNECT application that is recei
 processing the data and sending it to /IOTCONNECT. 
 This application can receive Cloud-To-Device commands as well and control one of the board LEDs or control the application flow.
 
- the factory-provisioned immutable Hardware Unique Key (HUK)
-to derive a private key based on the
+The factory-provisioned immutable Hardware Unique Key (HUK)
+is used to derive a private key based on the HUK
 and generate a certificate that will be stored in PSA Internal Trusted Storage (ITS).
 The same certificate will be retrieved and printed upon subsequent reboots.
 
@@ -77,7 +77,7 @@ For general instructions on how to set up, build and run this project, refer to 
 depending on the application version and the model selected (first letter in the version prefix):
 
 ```
->: {"d":[{"d":{"version":"M-1.1.0","random":41,"event_id":0,"event":"up","event_detected":false}}]}
+>: {"d":[{"d":{"version":"M-1.2.0","random":41,"event_id":0,"event":"up","event_detected":false}}]}
 ```
 - 
 - The following commands can be sent to the device using the /IOTCONNECT Web UI:
@@ -89,4 +89,4 @@ depending on the application version and the model selected (first letter in the
 
 ## OTA Guide
 
-- For more details, refer to the document [OTA.md](OTA.md).
+- For more details, refer to the [OTA.md](OTA.md) document.

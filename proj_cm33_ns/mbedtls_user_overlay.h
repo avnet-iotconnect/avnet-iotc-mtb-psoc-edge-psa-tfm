@@ -31,7 +31,7 @@
 #undef MBEDTLS_ECP_DP_BP512R1_ENABLED
 // This is likely needed for RSA TLS 1.3 with /IOTCONNECT discovery/identity servers
 // but we coudldn't get it to work with PSA + RSA private keys
-// It want Montgomery with AWS, and we don't have it enabled in the PSA profile
+// It wants Montgomery with AWS, and we don't have it enabled in the PSA profile
 #undef MBEDTLS_ECP_DP_CURVE25519_ENABLED
 #undef MBEDTLS_ECP_DP_CURVE448_ENABLED
 
