@@ -18,6 +18,7 @@
 
 #include "iotconnect.h"
 #include "iotc_mtb_time.h"
+#include "iotc_ota.h"
 
 #include "app_psa_mqtt.h"
 #include "app_its_config.h"
@@ -26,7 +27,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-#define APP_VERSION_BASE "1.1.0"
+#define APP_VERSION_BASE "1.2.0"
 
 // Defined in common.mk then dereference in this Makefile with DEFINES+=
 #if defined(COUGH_MODEL)
@@ -68,17 +69,57 @@ static void on_connection_status(IotConnectConnectionStatus status) {
 }
 
 static void on_ota(IotclC2dEventData data) {
-    const char *ota_host = iotcl_c2d_get_ota_url_hostname(data, 0);
-    if (ota_host == NULL) {
-        printf("OTA host is invalid.\n");
-        return;
+    const char *ack_id = iotcl_c2d_get_ack_id(data);
+    if (ack_id == NULL){
+    	printf("ACK ID is invalid.\n");
+    	return;
     }
+
+    const char *ota_host = iotcl_c2d_get_ota_url_hostname(data, 0);
+    if (ota_host == NULL){
+    	printf("OTA host is invalid.\n");
+    	return;
+    }
+
     const char *ota_path = iotcl_c2d_get_ota_url_resource(data, 0);
     if (ota_path == NULL) {
-        printf("OTA resource is invalid.\n");
-        return;
+    	printf("OTA resource is invalid.\n");
+    	return;
     }
-    printf("OTA download request received for https://%s%s, but it is not implemented.\n", ota_host, ota_path);
+
+    printf("OTA download for https://%s%s\n", ota_host, ota_path);
+
+#ifdef IOTC_OTA_SUPPORT
+    /* Start the OTA task */
+    iotcl_mqtt_send_ota_ack(ack_id, IOTCL_C2D_EVT_OTA_DOWNLOADING, NULL);
+
+    const char* ota_err_str = NULL;
+    if(CY_RSLT_SUCCESS == iotc_ota_run(IOTCONNECT_CONNECTION_TYPE, ota_host, ota_path, NULL)) {
+        ota_err_str = iotc_ota_get_download_error_string();
+        printf("OTA completed with status: %s\n", ota_err_str ? ota_err_str : "No error");
+    } else {
+        printf("ERROR: OTA failed to start!\n");
+        ota_err_str = "OTA failed to start";
+    }
+    iotcl_mqtt_send_ota_ack(
+        ack_id,
+        ota_err_str ? IOTCL_C2D_EVT_OTA_DOWNLOAD_FAILED : IOTCL_C2D_EVT_OTA_DOWNLOAD_DONE,
+        ota_err_str
+    );
+
+    if (NULL == ota_err_str) {
+        printf("The board will reset in 5 seconds....\n");
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        iotc_ota_system_reset();
+    }
+#else
+    iotcl_mqtt_send_ota_ack(
+        ack_id,
+        IOTCL_C2D_EVT_OTA_DOWNLOAD_FAILED,
+        "OTA not implemented"
+    );
+#endif
+
 }
 
 // returns success on matching the expected format. Returns is_on, assuming "on" for true, "off" for false
@@ -198,6 +239,13 @@ void app_task(void *pvParameters) {
     }
 
     printf("App Task: CM55 IPC is ready. Resuming the application...\n");
+
+#ifdef IOTC_OTA_SUPPORT
+    iotc_ota_init();
+
+    /* Validate the update */
+	iotc_ota_storage_validated();
+#endif
 
     char iotc_duid[IOTCL_CONFIG_DUID_MAX_LEN] = IOTCONNECT_DUID;
     if (0 == strlen(iotc_duid)) {

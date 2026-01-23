@@ -87,6 +87,10 @@ DEFINES+=
 TFM_CONFIGURE_EXT_OPTIONS+= -DTFM_EXCEPTION_INFO_DUMP=ON -DPLATFORM_EXCEPTION_INFO=ON -DIFX_FAULTS_INFO_DUMP=ON -DTFM_SPM_LOG_LEVEL=TFM_SPM_LOG_LEVEL_DEBUG -DTFM_PARTITION_LOG_LEVEL=TFM_PARTITION_LOG_LEVEL_DEBUG
 TFM_CONFIGURE_EXT_OPTIONS+= -DCONFIG_TFM_HALT_ON_CORE_PANIC:BOOL=ON
 
+# Project-specific TF-M configuration header (overrides CRYPTO_IOVEC_BUFFER_SIZE, etc.)
+# This header is included at the top of config_tfm_target.h before defaults are set
+TFM_CONFIGURE_EXT_OPTIONS+= -DIFX_PROJECT_CONFIG_PATH=$(call TFM_PATH_MIXED,$(CURDIR)/ifx_tfm_config.h)
+
 # Select softfp or hardfp floating point. Default is softfp.
 VFP_SELECT+=
 
