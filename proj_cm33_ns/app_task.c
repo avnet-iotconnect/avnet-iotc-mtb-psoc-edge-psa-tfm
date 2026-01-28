@@ -50,6 +50,7 @@
 
 static bool is_demo_mode = false;
 static int reporting_interval = 2000;
+static bool is_downloading = false;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -94,6 +95,7 @@ static void on_ota(IotclC2dEventData data) {
     iotcl_mqtt_send_ota_ack(ack_id, IOTCL_C2D_EVT_OTA_DOWNLOADING, NULL);
 
     const char* ota_err_str = NULL;
+    is_downloading = true;
     if(CY_RSLT_SUCCESS == iotc_ota_run(IOTCONNECT_CONNECTION_TYPE, ota_host, ota_path, NULL)) {
         ota_err_str = iotc_ota_get_download_error_string();
         printf("OTA completed with status: %s\n", ota_err_str ? ota_err_str : "No error");
@@ -106,12 +108,12 @@ static void on_ota(IotclC2dEventData data) {
         ota_err_str ? IOTCL_C2D_EVT_OTA_DOWNLOAD_FAILED : IOTCL_C2D_EVT_OTA_DOWNLOAD_DONE,
         ota_err_str
     );
-
     if (NULL == ota_err_str) {
         printf("The board will reset in 5 seconds....\n");
         vTaskDelay(pdMS_TO_TICKS(5000));
         iotc_ota_system_reset();
     }
+    is_downloading = false;
 #else
     iotcl_mqtt_send_ota_ack(
         ack_id,
@@ -305,10 +307,12 @@ void app_task(void *pvParameters) {
         
         int max_messages = is_demo_mode ? 6000 : 300;
         for (int j = 0; iotconnect_sdk_is_connected() && j < max_messages; j++) {
-            cy_rslt_t result = publish_telemetry();
-            if (result != CY_RSLT_SUCCESS) {
-                break;
+            if (!is_downloading) {
+                cy_rslt_t result = publish_telemetry();
+                if (result != CY_RSLT_SUCCESS) {
+                    break;
                 }
+            }
             iotconnect_sdk_poll_inbound_mq(reporting_interval);
         }
         iotconnect_sdk_disconnect();
