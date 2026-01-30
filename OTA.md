@@ -17,7 +17,7 @@ increase the buff sizes below for the long HTTPS OTA URL:
 - In the file *proj_cm33_ns/ota.mk*, set the OTA flag below.
 Alternatively, create an Environment Variable ```"OTA_SUPPORT``` and set its value to ```1``` and restart the IDE.
 
-```c
+```makefile
     OTA_SUPPORT?=1
 ```
 
